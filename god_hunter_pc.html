@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>GOD HUNTER PC</title>
+</head>
+<body style="width:100%; height:100%; overflow:hidden; background-color:#020005; font-family:'Courier New', Courier, monospace; margin:0; padding:0; touch-action:none; user-select:none; -webkit-user-select:none;">
+
+<!-- CANVAS TRÒ CHƠI CHÍNH -->
+<canvas id="gameCanvas" style="display:block; position:fixed; top:0; left:0; width:100%; height:100%; z-index:1;"></canvas>
+
+<!-- NÚT CHƠI ONLINE (multiplayer) - mở ở tab mới, không ảnh hưởng chế độ offline hiện tại -->
+<button onclick="window.open('online.html','_blank')" style="position:fixed; top:10px; right:10px; z-index:950; padding:8px 14px; background:rgba(0,229,255,0.15); border:2px solid #00e5ff; color:#00e5ff; font-weight:bold; font-size:11px; border-radius:8px; cursor:pointer; font-family:'Courier New', Courier, monospace; box-shadow:0 0 10px #00e5ff55;">🌐 CHƠI ONLINE</button>
+
+<!-- BANNER HỆ THỐNG THÔNG BÁO -->
+<div id="systemAlert" style="position:fixed; top:18%; left:50%; transform:translateX(-50%); background:rgba(255,0,0,0.9); color:#fff; padding:10px 20px; border:2px solid #ff3333; border-radius:6px; font-weight:bold; font-size:13px; z-index:999; pointer-events:none; display:none; text-shadow:0 0 5px #000; text-align:center;"></div>
+
+<!-- ===== BẢNG POPUP CHỌN FORM (F1) ===== -->
+<div id="popupForm" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:900; background:rgba(8,2,22,0.97); border:2px solid #9945ff; border-radius:14px; padding:18px 16px; min-width:280px; max-width:92vw; box-shadow:0 0 30px #9945ff88;">
+  <div style="color:#9945ff; font-weight:900; font-size:15px; text-align:center; margin-bottom:14px; letter-spacing:2px; text-shadow:0 0 10px #9945ff;">⚔️ CHỌN HÌNH THÁI (F1)</div>
+  <div style="display:flex; flex-direction:column; gap:9px;">
+    <button onclick="selectForm(1)" id="fBtn1" style="padding:11px 10px; border-radius:8px; border:2px solid #ffcc00; background:rgba(255,204,0,0.12); color:#ffcc00; font-weight:bold; font-size:13px; cursor:pointer; text-align:left;">
+      🧍 Normal Form — Tăng tốc độ, Perfect Block cao
+    </button>
+    <button onclick="selectForm(2)" id="fBtn2" style="padding:11px 10px; border-radius:8px; border:2px solid #00e5ff; background:rgba(0,229,255,0.1); color:#00e5ff; font-weight:bold; font-size:13px; cursor:pointer; text-align:left;">
+      🌀 Shapeshift Form — Aura xanh, tăng DMG & DEF tuyệt đối
+    </button>
+    <button onclick="selectForm(3)" id="fBtn3" style="padding:11px 10px; border-radius:8px; border:2px solid #ffaa00; background:rgba(255,170,0,0.12); color:#ffaa00; font-weight:bold; font-size:13px; cursor:pointer; text-align:left;">
+      👑 God Form — Miễn khống chế, Super God Sword tự rút ra
+    </button>
+    <button onclick="closePopup('popupForm')" style="padding:8px; border-radius:6px; border:1px solid #555; background:rgba(80,0,0,0.5); color:#aaa; font-size:11px; cursor:pointer; margin-top:4px;">✖ Đóng</button>
+  </div>
+</div>
+
+<!-- ===== BẢNG POPUP CHỌN SỨC MẠNH (F2) ===== -->
+<div id="popupSkill" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:900; background:rgba(8,2,22,0.97); border:2px solid #ff45b5; border-radius:14px; padding:18px 16px; min-width:290px; max-width:92vw; box-shadow:0 0 30px #ff45b588; max-height:90vh; overflow-y:auto;">
+  <div style="color:#ff45b5; font-weight:900; font-size:15px; text-align:center; margin-bottom:14px; letter-spacing:2px; text-shadow:0 0 10px #ff45b5;">🌀 CHỌN SỨC MẠNH (F2)</div>
+  <div style="display:flex; flex-direction:column; gap:8px;">
+    <button onclick="selectSkill(0)" style="padding:10px; border-radius:8px; border:2px solid #888; background:rgba(120,120,120,0.12); color:#ccc; font-weight:bold; font-size:12px; cursor:pointer; text-align:left;">⬜ GỐC — Đòn cơ bản, không sức mạnh đặc biệt</button>
+    <button onclick="selectSkill(1)" style="padding:10px; border-radius:8px; border:2px solid #cc66ff; background:rgba(180,80,255,0.12); color:#cc66ff; font-weight:bold; font-size:12px; cursor:pointer; text-align:left;">🌀 Full Power Merge — Dung hợp tối cổ, Mana vĩnh cửu, M1 x10 DMG</button>
+    <button onclick="selectSkill(2)" style="padding:10px; border-radius:8px; border:2px solid #ffff00; background:rgba(255,255,0,0.08); color:#ffff00; font-weight:bold; font-size:12px; cursor:pointer; text-align:left;">⚡ Lightning — Sấm sét, choáng, Storm Field, [K] Chemical Reaction</button>
+    <button onclick="selectSkill(3)" style="padding:10px; border-radius:8px; border:2px solid #00eeff; background:rgba(0,200,255,0.08); color:#00eeff; font-weight:bold; font-size:12px; cursor:pointer; text-align:left;">🌀 Space — Điều khiển hư không, Dimensional Wall, Shatter 150 DMG</button>
+    <button onclick="selectSkill(4)" style="padding:10px; border-radius:8px; border:2px solid #aa88ff; background:rgba(150,100,255,0.08); color:#aa88ff; font-weight:bold; font-size:12px; cursor:pointer; text-align:left;">⏳ Time — Đóng băng thời gian, Temporal Slow, Damage Delay</button>
+    <button onclick="selectSkill(5)" style="padding:10px; border-radius:8px; border:2px solid #00ff88; background:rgba(0,255,100,0.07); color:#00ff88; font-weight:bold; font-size:12px; cursor:pointer; text-align:left;">🩹 Recovery — Hồi HP, Bất tử 30s, hút máu 100 DMG [F]</button>
+    <button onclick="closePopup('popupSkill')" style="padding:8px; border-radius:6px; border:1px solid #555; background:rgba(80,0,0,0.5); color:#aaa; font-size:11px; cursor:pointer; margin-top:4px;">✖ Đóng</button>
+  </div>
+</div>
+
+<!-- ===== BẢNG POPUP CHỌN KIẾM (W3) ===== -->
+<div id="popupWeapon" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:900; background:rgba(8,2,22,0.97); border:2px solid #ffaa00; border-radius:14px; padding:18px 16px; min-width:280px; max-width:92vw; box-shadow:0 0 30px #ffaa0088;">
+  <div style="color:#ffaa00; font-weight:900; font-size:15px; text-align:center; margin-bottom:14px; letter-spacing:2px; text-shadow:0 0 10px #ffaa00;">🗡️ CHỌN VŨ KHÍ (W3)</div>
+  <div style="display:flex; flex-direction:column; gap:9px;">
+    <button onclick="selectWeapon(1)" style="padding:11px 10px; border-radius:8px; border:2px solid #ff0055; background:rgba(255,0,85,0.1); color:#ff5588; font-weight:bold; font-size:13px; cursor:pointer; text-align:left;">
+      🗡️ Full Power Sword — DMG: 20 | Cốt lõi dẫn truyền sức mạnh Merge &amp; nhánh lẻ
+    </button>
+    <button onclick="selectWeapon(2)" style="padding:11px 10px; border-radius:8px; border:2px solid #ff44ff; background:rgba(255,100,255,0.1); color:#ff88ff; font-weight:bold; font-size:13px; cursor:pointer; text-align:left;">
+      🌈 Rainbow Magic Sword — DMG: 17 | +30% tốc đánh | Mở R/T/Y/U đặc biệt
+    </button>
+    <button onclick="selectWeapon(3)" style="padding:11px 10px; border-radius:8px; border:2px solid #00e5ff; background:rgba(0,220,255,0.1); color:#66eeff; font-weight:bold; font-size:13px; cursor:pointer; text-align:left;">
+      ✨ Grand God Sword — DMG: 12 | +40% phòng thủ | Mở R/T/Y/U phòng thủ
+    </button>
+    <button onclick="closePopup('popupWeapon')" style="padding:8px; border-radius:6px; border:1px solid #555; background:rgba(80,0,0,0.5); color:#aaa; font-size:11px; cursor:pointer; margin-top:4px;">✖ Đóng</button>
+  </div>
+</div>
+
+<!-- Lớp nền mờ khi popup mở -->
+<div id="popupBackdrop" onclick="closeAllPopups()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.55); z-index:850;"></div>
+
+<!-- HỆ THỐNG ĐIỆN ẢNH CUTSCENE -->
+<div id="cutsceneOverlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5,2,15,0.92); z-index:500; display:none; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; transition:all 0.3s; border: 4px solid #ffaa00;">
+  <h1 id="cutsceneTitle" style="color:#ffcc00; font-size:26px; font-weight:900; margin-bottom:12px; text-shadow:0 0 20px #ffaa00; text-align:center; text-transform:uppercase;"></h1>
+  <p id="cutsceneDesc" style="color:#fff; font-size:13px; max-width:75%; text-align:center; line-height:1.6; border-left:3px solid #ffcc00; padding-left:10px;"></p>
+</div>
+
+<!-- GIAO DIỆN HUD CHỈ SỐ TOP -->
+<div style="position:fixed; top:10px; left:10px; right:10px; display:flex; justify-content:space-between; align-items:flex-start; z-index:100; pointer-events:none;">
+  <!-- Chỉ số Nhân vật & Điều khiển Thần Quyền -->
+  <div style="background:rgba(10,5,25,0.85); border:1px solid #4d26b3; padding:10px; border-radius:6px; min-width:180px; pointer-events:auto; display:flex; flex-direction:column; gap:5px;">
+    <div style="color:#00ffff; font-size:12px; font-weight:bold;">HP: <span id="hpText">10000000000</span>/<span style="color:#aaffff">10B</span></div>
+    <div style="width:100%; height:10px; background:#221133; border:1px solid #553377; border-radius:3px; overflow:hidden;">
+      <div id="hpBar" style="width:100%; height:100%; background:linear-gradient(90deg, #ff0055, #ff5500);"></div>
+    </div>
+    <div style="color:#4488ff; font-size:11px; font-weight:bold;">MANA: <span id="manaText">10000</span>/<span style="color:#88aaff">10000</span></div>
+    <div style="width:100%; height:8px; background:#0a0a33; border:1px solid #334488; border-radius:3px; overflow:hidden;">
+      <div id="manaBar" style="width:100%; height:100%; background:linear-gradient(90deg, #0044ff, #00ccff); transition:width 0.1s;"></div>
+    </div>
+    <div style="color:#ffcc00; font-size:11px; font-weight:bold;">KILLS: <span id="killText">0</span></div>
+    <!-- Nút cấu hình cho phép Boss quỳ hoặc không quỳ của nội tại God Form -->
+    <button id="toggleKneelBtn" onclick="toggleDivineSupremacy()" style="margin-top:5px; background:#ffaa00; border:none; color:#000; font-size:10px; font-weight:bold; padding:4px; border-radius:3px; cursor:pointer;">NỘI TẠI GOD FROM: ÉP QUỲ (BẬT)</button>
+  </div>
+
+  <!-- BẢNG THEO DÕI MÁU BOSS & QUÁI THƯỜNG -->
+  <div style="display:flex; flex-direction:column; gap:6px; width:260px; pointer-events:none; background:rgba(0,0,0,0.6); padding:8px; border-radius:6px; border:1px solid #ff3333;">
+    <div>
+      <div style="color:#ff3333; font-size:11px; font-weight:bold; display:flex; justify-content:between;"><span>👹 CHAOS BOSS</span> <span id="bossHpText">10000/10000</span></div>
+      <div style="width:100%; height:8px; background:#330000; border-radius:2px; overflow:hidden; margin-top:2px;">
+        <div id="bossBar" style="width:100%; height:100%; background:#ff3333; transition:width 0.1s;"></div>
+      </div>
+    </div>
+    <div>
+      <div style="color:#ff7700; font-size:11px; font-weight:bold; display:flex; justify-content:between;"><span>👾 QUÁI THƯỜNG</span> <span id="mobHpText">5000/5000</span></div>
+      <div style="width:100%; height:6px; background:#331100; border-radius:2px; overflow:hidden; margin-top:2px;">
+        <div id="mobBar" style="width:100%; height:100%; background:#ff7700; transition:width 0.1s;"></div>
+      </div>
+    </div>
+    <div>
+      <div style="color:#ffdd00; font-size:11px; font-weight:bold; display:flex; justify-content:between;"><span>👹 9 QUÁI MỚI (tổng)</span> <span id="extraMobsHpText">45000/45000</span></div>
+      <div style="width:100%; height:6px; background:#332200; border-radius:2px; overflow:hidden; margin-top:2px;">
+        <div id="extraMobsBar" style="width:100%; height:100%; background:#ffdd00; transition:width 0.1s;"></div>
+      </div>
+    </div>
+    <div style="color:#00ff00; font-size:9px; text-align:center; font-style:italic;">Hồi phục: +500 HP / 1 Phút | Hồi sinh sau 5 giây</div>
+  </div>
+
+  <!-- Trạng thái hiện hành -->
+  <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
+    <div id="badgeForm" style="padding:5px 12px; background:rgba(255,204,0,0.2); border:1px solid #ffcc00; color:#ffcc00; font-weight:bold; font-size:12px; border-radius:4px; text-shadow:0 0 5px #ffcc00;">FORM: NORMAL</div>
+    <div id="badgeWeapon" style="padding:5px 12px; background:rgba(255,170,0,0.15); border:1px solid #ffaa00; color:#ffaa00; font-weight:bold; font-size:12px; border-radius:4px;">WEAPON: FULL POWER SWORD</div>
+    <div id="badgeSkillMode" style="padding:5px 12px; background:rgba(238,130,238,0.15); border:1px solid #ee82ee; color:#ee82ee; font-weight:bold; font-size:11px; border-radius:4px;">KỸ NĂNG: GỐC</div>
+  </div>
+</div>
+
+<!-- LỊCH SỬ COMBAT LOGS -->
+<div id="combatLog" style="position:fixed; top:130px; left:10px; width:220px; max-height:120px; overflow:hidden; display:flex; flex-direction:column-reverse; gap:4px; z-index:90; pointer-events:none;"></div>
+
+<!-- JOYSTICK (mobile only, ẩn trên PC) -->
+<div id="joyZone" style="position:fixed; bottom:70px; left:75px; width:110px; height:110px; background:rgba(255,255,255,0.07); border:2px solid rgba(255,255,255,0.3); border-radius:50%; z-index:200; touch-action:none;">
+  <div id="joyKnob" style="width:38px; height:38px; background:linear-gradient(135deg, #ffaa00, #9945ff); border:1px solid #fff; border-radius:50%; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%);"></div>
+</div>
+
+<!-- ═══ CỘT TRÁI: Tab, F1, F2, W3, D4 (hàng dọc) ═══ -->
+<div style="position:fixed; left:10px; bottom:60px; z-index:200; display:flex; flex-direction:column; gap:7px; align-items:center;">
+  <button onclick="toggleTabHelp()" style="width:52px; height:40px; background:#0a0a1a; border:2px solid #00ffcc; color:#00ffcc; font-weight:bold; border-radius:8px; font-size:11px; box-shadow:0 0 8px #00ffcc44; cursor:pointer; letter-spacing:1px;">TAB</button>
+  <button onclick="triggerSelectSystem(1)" style="width:52px; height:40px; background:#1b053a; border:2px solid #9945ff; color:#9945ff; font-weight:bold; border-radius:8px; font-size:13px; box-shadow:0 0 6px #9945ff44; cursor:pointer;">F1</button>
+  <button onclick="triggerSelectSystem(2)" style="width:52px; height:40px; background:#3a052d; border:2px solid #ff45b5; color:#ff45b5; font-weight:bold; border-radius:8px; font-size:13px; box-shadow:0 0 6px #ff45b544; cursor:pointer;">F2</button>
+  <button onclick="triggerSelectSystem(3)" style="width:52px; height:40px; background:#3a2c05; border:2px solid #ffaa00; color:#ffaa00; font-weight:bold; border-radius:8px; font-size:13px; box-shadow:0 0 6px #ffaa0044; cursor:pointer;">W3</button>
+  <button onclick="triggerSelectSystem(4)" style="width:52px; height:40px; background:#3a0505; border:2px solid #ff3333; color:#ff3333; font-weight:bold; border-radius:8px; font-size:13px; box-shadow:0 0 6px #ff333344; cursor:pointer;">D4</button>
+</div>
+
+<!-- ═══ CỘT PHẢI: Nhảy, M1, M2, M3, E (hàng dọc) ═══ -->
+<div style="position:fixed; right:10px; bottom:60px; z-index:200; display:flex; flex-direction:column; gap:7px; align-items:center;">
+  <div id="btnJump" style="width:52px; height:40px; background:rgba(30,80,40,0.85); border:2px solid #2ecc71; color:#2ecc71; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px; font-weight:bold; box-shadow:0 0 8px #2ecc7144; cursor:pointer;">↑ NHẢ</div>
+  <div id="btnAttack" style="width:52px; height:40px; background:rgba(120,20,0,0.85); border:2px solid #ff5500; color:#ff5500; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:bold; box-shadow:0 0 12px #ff550044; cursor:pointer;">M1 ⚔</div>
+  <div id="btnKick" style="width:52px; height:40px; background:rgba(90,60,10,0.85); border:2px solid #ffaa33; color:#ffaa33; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:bold; box-shadow:0 0 8px #ffaa3344; cursor:pointer; flex-direction:column;">M2<span style="font-size:7px;">ĐÁ</span></div>
+  <div id="btnM3" style="width:52px; height:40px; background:rgba(60,10,90,0.85); border:2px solid #cc66ff; color:#cc66ff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; box-shadow:0 0 8px #cc66ff44; cursor:pointer; flex-direction:column;">M3<span style="font-size:7px;">50K</span></div>
+  <div id="btnBlock" style="width:52px; height:40px; background:rgba(20,40,90,0.85); border:2px solid #3399ff; color:#3399ff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:bold; box-shadow:0 0 8px #3399ff44; cursor:pointer; flex-direction:column;">E<span style="font-size:7px;">BLOCK</span></div>
+</div>
+
+<!-- ═══ HÀNG DƯỚI GIỮA: R T Y U + K + Z X C V B N M J F ═══ -->
+<div style="position:fixed; bottom:10px; left:72px; right:72px; z-index:200; display:flex; flex-direction:column; gap:5px; align-items:center;">
+
+  <!-- Hàng duy nhất: R T Y U K  |  Z X C V B N M J F -->
+  <div style="display:flex; gap:4px; align-items:center; flex-wrap:nowrap;">
+    <button onclick="castSubSkill('R')" style="width:42px; height:40px; background:#0a0a1a; border:1px solid #ffaa00; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">R</span><span id="nameR" style="font-size:7px; color:#aaa;">Khóa</span>
+    </button>
+    <button onclick="castSubSkill('T')" style="width:42px; height:40px; background:#0a0a1a; border:1px solid #ffaa00; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">T</span><span id="nameT" style="font-size:7px; color:#aaa;">Khóa</span>
+    </button>
+    <button onclick="castSubSkill('Y')" style="width:42px; height:40px; background:#0a0a1a; border:1px solid #ffaa00; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">Y</span><span id="nameY" style="font-size:7px; color:#aaa;">Khóa</span>
+    </button>
+    <button onclick="castSubSkill('U')" style="width:42px; height:40px; background:#0a0a1a; border:1px solid #ffaa00; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">U</span><span id="nameU" style="font-size:7px; color:#aaa;">Khóa</span>
+    </button>
+    <button onclick="castChemicalM8()" style="width:42px; height:40px; background:linear-gradient(135deg,#ff4500,#ff8c00); border:2px solid #fff; color:#fff; font-weight:bold; font-size:9px; border-radius:6px; box-shadow:0 0 8px #ff4500; cursor:pointer; flex-shrink:0; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.2;">
+      <span style="font-size:11px;">⚡K</span><span style="font-size:7px;">CHEM</span>
+    </button>
+    <!-- Gạch phân cách -->
+    <div style="width:2px; height:34px; background:rgba(255,255,255,0.15); border-radius:2px; flex-shrink:0;"></div>
+    <button onclick="castMainSkill('Z')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">Z</span><span id="lblZ" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('X')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">X</span><span id="lblX" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('C')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">C</span><span id="lblC" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('V')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">V</span><span id="lblV" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('B')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">B</span><span id="lblB" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('N')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">N</span><span id="lblN" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('M')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">M</span><span id="lblM" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('J')" style="width:42px; height:40px; background:rgba(0,0,0,0.8); border:1px solid #555; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ffaa00;">J</span><span id="lblJ" style="font-size:7px; color:#bbb;">-</span>
+    </button>
+    <button onclick="castMainSkill('F')" style="width:42px; height:40px; background:rgba(100,0,50,0.85); border:2px solid #ff0077; border-radius:5px; display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 0 6px #ff0077; flex-shrink:0;">
+      <span style="font-size:12px; font-weight:bold; color:#ff0077;">F</span><span id="lblF" style="font-size:7px; color:#fff;">ULTI</span>
+    </button>
+  </div>
+</div>
+
+
+<!-- TAB HELP OVERLAY -->
+<div id="tabHelp" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(3,0,15,0.97); z-index:9999; overflow-y:auto; padding:20px; box-sizing:border-box;">
+  <div style="max-width:900px; margin:0 auto; color:#fff; font-family:monospace;">
+    <div style="text-align:center; margin-bottom:20px;">
+      <h1 style="color:#ffcc00; font-size:22px; text-shadow:0 0 15px #ffcc00; margin:0;">⌨️ GOD HUNTER — HƯỚNG DẪN PHÍM PC</h1>
+      <p style="color:#888; font-size:11px; margin:5px 0;">Nhấn TAB để đóng</p>
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; font-size:12px;">
+      <div style="background:rgba(255,255,255,0.05); border:1px solid #333; border-radius:8px; padding:14px;">
+        <div style="color:#00ffff; font-weight:bold; margin-bottom:10px; font-size:13px;">🎮 DI CHUYỂN & CƠ BẢN</div>
+        <div style="display:grid; grid-template-columns:80px 1fr; gap:5px; line-height:1.8;">
+          <span style="color:#ffcc00;">A</span><span style="color:#ccc;">Di chuyển trái</span>
+          <span style="color:#ffcc00;">D</span><span style="color:#ccc;">Di chuyển phải</span>
+          <span style="color:#ffcc00;">Space</span><span style="color:#ccc;">Nhảy (trên sàn) | Lướt (khi đang bay)</span>
+          <span style="color:#ffcc00;">Chuột Trái</span><span style="color:#ccc;">M1 — Tấn công chính</span>
+          <span style="color:#ffcc00;">Chuột Phải</span><span style="color:#ccc;">M2 — Cú đá (15 DMG + Choáng)</span>
+          <span style="color:#ffcc00;">Q</span><span style="color:#ccc;">M3 — Parry Strike (50,000 DMG) — nhấn Q</span>
+          <span style="color:#ffcc00;">E (giữ)</span><span style="color:#ccc;">Block — giữ bao lâu block bấy lâu</span>
+          <span style="color:#ffcc00;">H</span><span style="color:#ccc;">Bật/Tắt Nội Tại Ép Quỳ God Form</span>
+          <span style="color:#ffcc00;">K</span><span style="color:#ccc;">⚡ Chemical Reaction (Lightning only)</span>
+        </div>
+        <div style="color:#ff8800; font-weight:bold; margin:10px 0 6px; font-size:12px;">🐉 KHI BAY (Dragon Core V — Flight)</div>
+        <div style="display:grid; grid-template-columns:80px 1fr; gap:5px; line-height:1.8;">
+          <span style="color:#ffcc00;">W</span><span style="color:#ccc;">Bay lên</span>
+          <span style="color:#ffcc00;">S</span><span style="color:#ccc;">Bay xuống</span>
+          <span style="color:#ffcc00;">A / D</span><span style="color:#ccc;">Di chuyển trái / phải khi bay</span>
+          <span style="color:#ffcc00;">Space</span><span style="color:#ccc;">Lướt nhanh theo hướng đang nhìn</span>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); border:1px solid #333; border-radius:8px; padding:14px;">
+        <div style="color:#ff45b5; font-weight:bold; margin-bottom:10px; font-size:13px;">🌀 HỆ THỐNG CHỌN</div>
+        <div style="display:grid; grid-template-columns:80px 1fr; gap:5px; line-height:1.8;">
+          <span style="color:#ffcc00;">1</span><span style="color:#ccc;">F1 — Chọn Form (Normal/Shapeshift/God)</span>
+          <span style="color:#ffcc00;">2</span><span style="color:#ccc;">F2 — Chọn Sức Mạnh (GỐC/Merge/Lightning...)</span>
+          <span style="color:#ffcc00;">3</span><span style="color:#ccc;">W3 — Chọn Kiếm (Full Power/Rainbow/Grand)</span>
+          <span style="color:#ffcc00;">4</span><span style="color:#ccc;">D4 — Kích hoạt Dragon Core (cần Normal+GỐC)</span>
+          <span style="color:#ffcc00;">↑</span><span style="color:#ccc;">Chọn lên (trong popup)</span>
+          <span style="color:#ffcc00;">↓</span><span style="color:#ccc;">Chọn xuống (trong popup)</span>
+          <span style="color:#ffcc00;">Enter</span><span style="color:#ccc;">Xác nhận (trong popup)</span>
+          <span style="color:#ffcc00;">Esc</span><span style="color:#ccc;">Đóng popup</span>
+          <span style="color:#ffcc00;">Tab</span><span style="color:#ccc;">Hướng dẫn này</span>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); border:1px solid #333; border-radius:8px; padding:14px;">
+        <div style="color:#ffaa00; font-weight:bold; margin-bottom:10px; font-size:13px;">⚔️ CHIÊU BỔ TRỢ (R T Y U)</div>
+        <div style="display:grid; grid-template-columns:80px 1fr; gap:5px; line-height:1.8;">
+          <span style="color:#ffcc00;">R</span><span style="color:#ccc;">Chiêu R — tùy kiếm/sức mạnh</span>
+          <span style="color:#ffcc00;">T</span><span style="color:#ccc;">Chiêu T — tùy kiếm/sức mạnh</span>
+          <span style="color:#ffcc00;">Y</span><span style="color:#ccc;">Chiêu Y — tùy kiếm/sức mạnh</span>
+          <span style="color:#ffcc00;">U</span><span style="color:#ccc;">Chiêu U — tùy kiếm/sức mạnh</span>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,0.05); border:1px solid #333; border-radius:8px; padding:14px;">
+        <div style="color:#00ff88; font-weight:bold; margin-bottom:10px; font-size:13px;">💥 CHIÊU CHÍNH (Z X C V B N M J F)</div>
+        <div style="display:grid; grid-template-columns:80px 1fr; gap:5px; line-height:1.8;">
+          <span style="color:#ffcc00;">Z</span><span id="hlpZ" style="color:#ccc;">Chiêu Z</span>
+          <span style="color:#ffcc00;">X</span><span id="hlpX" style="color:#ccc;">Chiêu X</span>
+          <span style="color:#ffcc00;">C</span><span id="hlpC" style="color:#ccc;">Chiêu C</span>
+          <span style="color:#ffcc00;">V</span><span id="hlpV" style="color:#ccc;">Chiêu V</span>
+          <span style="color:#ffcc00;">B</span><span id="hlpB" style="color:#ccc;">Chiêu B</span>
+          <span style="color:#ffcc00;">N</span><span id="hlpN" style="color:#ccc;">Chiêu N</span>
+          <span style="color:#ffcc00;">M</span><span id="hlpM" style="color:#ccc;">Chiêu M</span>
+          <span style="color:#ffcc00;">J</span><span id="hlpJ" style="color:#ccc;">Chiêu J</span>
+          <span style="color:#ffcc00;">F</span><span id="hlpF" style="color:#ccc;">Chiêu F — ULTI</span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:16px; color:#555; font-size:10px;">Nhấn TAB hoặc click bất kỳ đâu để đóng</div>
+  </div>
+</div>
+
+<script>
+// CONFIG & ENGINE INITIALIZATION
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  // Tính lại vị trí sàn và nhân vật theo chiều cao màn hình thực tế
+  const groundY = Math.floor(canvas.height * 0.82);
+  S.platforms[0].y = groundY;
+  S.platforms[1].y = groundY - 120;
+  S.platforms[2].y = groundY - 220;
+  // Đặt lại vị trí boss/mob theo sàn mới
+  S.boss.y = groundY;
+  S.mob.y = groundY;
+  S.extraMobs.forEach(m => { m.y = groundY; });
+  // Nếu nhân vật đang rơi quá thấp, kéo về sàn mới
+  if (S.py > groundY + 50) { S.py = groundY; S.pvy = 0; }
+}
+window.addEventListener('resize', resize);
+
+// Tính ground dựa theo chiều cao màn hình thực tế
+const _gY = () => Math.floor(window.innerHeight * 0.82);
+const S = {
+  px: 200, py: _gY() - 10, pvx: 0, pvy: 0, onGround: false, size: 40, facing: 1, hp: 10000000000, maxHp: 10000000000, kills: 0, cameraX: 0,
+  platforms: [
+    {x: 0, y: _gY(), w: 4000, h: 200, color: '#1a0d33'},
+    {x: 150, y: _gY() - 120, w: 300, h: 20, color: '#3c1b75'},
+    {x: 550, y: _gY() - 220, w: 300, h: 20, color: '#3c1b75'}
+  ],
+  boss: {x: 650, y: _gY(), hp: 10000, maxHp: 10000, size: 55, facing: -1, isDead: false, frozen: false},
+  mob: {x: 400, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: 1, isDead: false, frozen: false},
+  // 9 QUÁI MỚI: mỗi con 5000 HP, hành xử như S.mob (tuần tra, nhận damage, hồi máu, hồi sinh, đánh trả player)
+  extraMobs: [
+    {id: 1, x: 900,  homeX: 900,  y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: 1,  isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 2, x: 1050, homeX: 1050, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: -1, isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 3, x: 1200, homeX: 1200, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: 1,  isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 4, x: 1350, homeX: 1350, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: -1, isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 5, x: 1500, homeX: 1500, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: 1,  isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 6, x: 1650, homeX: 1650, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: -1, isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 7, x: 1800, homeX: 1800, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: 1,  isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 8, x: 1950, homeX: 1950, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: -1, isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0},
+    {id: 9, x: 2100, homeX: 2100, y: _gY(), hp: 5000, maxHp: 5000, size: 35, facing: 1,  isDead: false, frozen: false, frozenTimeout: null, isStunned: false, idleTimer: 0, deadTimer: 0}
+  ],
+  
+  currentForm: 1,      // 1: Normal, 2: Shapeshift, 3: God Form
+  currentWeapon: 1,    // 1: Full Power, 2: Rainbow, 3: Grand God, 4: Super God Sword
+  currentSkillMode: 0, // 0: Gốc, 1: Full Power Merge, 2: Lightning, 3: Space, 4: Time, 5: Recovery, 6: Resurrection, 7: Dragon Core
+  
+  allowKneelPassive: true, // Quyền bật tắt ép quỳ của God Hunter
+  buffDamageActive: false, buffDefenseActive: false, isDragonCoreSemi: false,
+  joyActive: false, joyBaseX: 0, joyBaseY: 0, joyDX: 0, joyDY: 0,
+  slashEffect: {active: false, timer: 0, x: 0, y: 0, w: 0, h: 0, type: 'normal'},
+  // Đếm thời gian player đứng yên cạnh quái/boss để kích hoạt đòn đánh trả
+  idleNearMobTimer: 0, idleNearBossTimer: 0, lastPx: 200,
+  // Phản damage (Static Shield / Storm Field / Time Loop F) - khi active, damage nhận vào bị phản lại kẻ địch gây ra
+  reflectDamageActive: false, reflectTimeout: null,
+  // Block (nút E) - giữ bao lâu block bấy lâu, 2 giây đầu là "perfect window"
+  isBlocking: false,
+  blockPerfectWindow: false,   // 2 giây đầu block — nếu bị đánh trong khoảng này → kích hoạt parry
+  parryM3Active: false, parryDmgMult: 1, // giữ field nhưng không dùng x5 nữa
+  // Space [X]: Bức tường không gian bao quanh player
+  dimensionalWall: { active: false, duration: 0 },
+  // Time [C]: Temporal Slow - boss/mob di chuyển chậm lại
+  temporalSlow: false,
+  // Recovery [N]: Life Barrier - chặn 1 đòn chí mạng
+  lifeBarrierActive: false,
+  // Recovery [N] mới: Bất tử 30 giây
+  immortalActive: false, immortalTimeout: null,
+  // Dragon Core [V]: Bay lượn 30 giây
+  dragonFlying: false, dragonFlightTimeout: null,
+  // Dragon Core [B]: Bán rồng toggle
+  // MANA hệ thống
+  mana: 10000, maxMana: 10000,
+  infiniteMana: false, infiniteManaTimeout: null,
+  // Khóa tấn công của boss/quái khi cutscene đang chạy (M8)
+  isCutscenePlaying: false,
+  frame: 0
+};
+
+const SKILL_LABELS = {
+  goc: {Z:'-', X:'-', C:'-', V:'-', B:'-', N:'-', M:'-', J:'-', F:'-'},
+  godForm: {Z:'Wrath', X:'Galaxy 1S', C:'Manip', V:'Will', B:'Freeze', N:'Genesis', M:'Core', J:'Apocalypse', F:'Cosmic'},
+  merge: {Z:'Quintuple', X:'Eraser', C:'Chaos B', V:'5-Elem', B:'Fracture', N:'VoidVortex', M:'Molecule', J:'Samsara', F:'Extinct'},
+  lightning: {Z:'ThundDash', X:'ThunderB', C:'ElecClaw', V:'StaticS', B:'VoltLock', N:'StormF', M:'L-Dragon', J:'Catastro', F:'Paralyze'},
+  space: {Z:'S-Grip', X:'DimWall', C:'Turbul', V:'Collapse', B:'S-Slash', N:'Mirror', M:'V-Chains', J:'Shatter', F:'Teleport'},
+  time: {Z:'T-Stop', X:'T-Accel', C:'T-Slow', V:'AgingT', B:'T-Echo', N:'T-Revers', M:'DmgDelay', J:'T-Loop', F:'LoopUlt'},
+  recovery: {Z:'Healing', X:'Purify', C:'CellReg', V:'RestorF', B:'InfMana', N:'L-Barrier', M:'Equilib', J:'Assim', F:'Siphon'},
+  resurrection: {},
+  dragon: {Z:'P-Blast', X:'F-Strike', C:'Inferno', V:'Flight', B:'Semi-Drag', N:'DragonR', M:'Comet', J:'Devour', F:'Summon'}
+};
+
+
+// ===== MANA SYSTEM =====
+function updateManaUI() {
+  const pct = Math.max(0, S.mana / S.maxMana * 100);
+  document.getElementById('manaBar').style.width = pct + '%';
+  document.getElementById('manaText').textContent = formatBig(S.mana);
+}
+function formatBig(n) {
+  if (n >= 1e9) return (n/1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return Math.floor(n).toString();
+}
+// Trả về true nếu có đủ mana và đã trừ. false nếu thiếu (hiện cảnh báo)
+function useMana(cost, label) {
+  if (S.infiniteMana) { addLog("💙 [Vô Hạn Mana] " + label + " miễn phí!"); return true; }
+  if (S.mana < cost) { showSystemAlert("⚠️ THIẾU MANA! Cần " + formatBig(cost) + " Mana cho " + label); return false; }
+  S.mana = Math.max(0, S.mana - cost);
+  updateManaUI();
+  return true;
+}
+
+function showSystemAlert(msg) {
+  const box = document.getElementById('systemAlert');
+  box.textContent = msg; box.style.display = 'block';
+  setTimeout(() => box.style.display = 'none', 2500);
+}
+
+function playCutscene(title, desc) {
+  const overlay = document.getElementById('cutsceneOverlay');
+  document.getElementById('cutsceneTitle').textContent = title;
+  document.getElementById('cutsceneDesc').textContent = desc;
+  overlay.style.display = 'flex';
+  setTimeout(() => overlay.style.display = 'none', 1500);
+}
+
+function toggleDivineSupremacy() {
+  S.allowKneelPassive = !S.allowKneelPassive;
+  document.getElementById('toggleKneelBtn').textContent = "NỘI TẠI GOD FROM: ÉP QUỲ (" + (S.allowKneelPassive ? "BẬT" : "TẮT") + ")";
+  addLog("⚙️ Thay đổi nội tại: " + (S.allowKneelPassive ? "Ép quỳ áp chế mục tiêu" : "Hủy chế độ áp chế quỳ"));
+}
+
+// ===== POPUP HELPERS =====
+function closePopup(id) {
+  document.getElementById(id).style.display = 'none';
+  document.getElementById('popupBackdrop').style.display = 'none';
+}
+function closeAllPopups() {
+  ['popupForm','popupSkill','popupWeapon'].forEach(id => document.getElementById(id).style.display = 'none');
+  document.getElementById('popupBackdrop').style.display = 'none';
+}
+function openPopup(id) {
+  closeAllPopups();
+  document.getElementById('popupBackdrop').style.display = 'block';
+  document.getElementById(id).style.display = 'block';
+}
+
+// Highlight nút đang chọn trong bảng popup Form
+function updateFormPopupHighlight() {
+  [1,2,3].forEach(i => {
+    const btn = document.getElementById('fBtn'+i);
+    if (!btn) return;
+    btn.style.opacity = (S.currentForm === i) ? '1' : '0.5';
+    btn.style.fontWeight = (S.currentForm === i) ? '900' : 'bold';
+    btn.style.boxShadow = (S.currentForm === i) ? '0 0 10px currentColor' : 'none';
+  });
+}
+
+// ===== CHỌN FORM TỪ BẢNG F1 =====
+function selectForm(formId) {
+  const prevForm = S.currentForm;
+  const prevSkill = S.currentSkillMode;
+
+  if (formId === 3) { // God Form
+    S.currentForm = 3;
+    S.currentWeapon = 4;
+    addLog("👑 GOD FORM! ⚡ Auto trang bị SUPER GOD SWORD!");
+    playCutscene("GOD FORM", "Chiến trường tối sầm, God Hunter diện kiến Vị Thần Tối Cổ truyền thừa lại Thần lực Sáng Thế hoàng kim chói lòa. SUPER GOD SWORD tự động rút ra!");
+  } else if (formId === 2) {
+    S.currentForm = 2;
+    if (S.currentWeapon === 4) S.currentWeapon = 1;
+    addLog("▶ Shapeshift Form — Aura xanh bao phủ!");
+    playCutscene("SHAPESHIFT FORM", "Năng lượng ma pháp màu xanh dương đậm đặc phóng ra từ mặt đất bao bọc lấy cơ thể Thợ Săn, tăng phòng thủ vượt trội.");
+  } else {
+    S.currentForm = 1;
+    if (S.currentWeapon === 4) S.currentWeapon = 1;
+    addLog("▶ Normal Form");
+  }
+  if (S.currentForm !== prevForm || S.currentSkillMode !== prevSkill) clearEnemyStatusOnSwitch();
+  updateUI();
+  closePopup('popupForm');
+  updateFormPopupHighlight();
+}
+
+// ===== CHỌN SỨC MẠNH TỪ BẢNG F2 =====
+function selectSkill(modeId) {
+  if (S.currentForm === 3) { showSystemAlert("⛔ CẤM: God Form không được dùng F2!"); closePopup('popupSkill'); return; }
+  if (modeId === 7) { showSystemAlert("⛔ Dragon Core dùng nút D4, không dùng F2!"); closePopup('popupSkill'); return; }
+  // Đang Dragon Core → cấm chọn bất kỳ sức mạnh nào qua F2
+  if (S.currentSkillMode === 7) { showSystemAlert("⛔ CẤM: Đang dùng DRAGON CORE! Bấm D4 để thoát trước."); closePopup('popupSkill'); return; }
+  // Nhánh lẻ (2-6) chỉ dùng được ở Normal hoặc Shapeshift
+  if (modeId >= 2 && modeId <= 6 && S.currentForm !== 1 && S.currentForm !== 2) {
+    showSystemAlert("⚠️ Nhánh lẻ chỉ dùng được ở Normal/Shapeshift Form!"); closePopup('popupSkill'); return;
+  }
+  const prevSkill = S.currentSkillMode;
+  S.currentSkillMode = modeId;
+  const mTxt = ["GỐC","DUNG HỢP MERGE","SẤM SÉT (LIGHTNING)","HƯ VÔ (SPACE)","DÒNG CHẢY (TIME)","BẤT DIỆT (RECOVERY)","SỨC MẠNH RỒNG ( DRAGON CORE)"];
+  addLog("🌀 Kích hoạt sức mạnh: " + mTxt[modeId]);
+  if (modeId === 1) playCutscene("FULL POWER MERGE", "5 luồng sức mạnh lẻ hợp nhất thành quả cầu tối cổ khổng lồ hòa thẳng vào lồng ngực God Hunter.");
+  if (S.currentSkillMode !== prevSkill) clearEnemyStatusOnSwitch();
+  updateUI();
+  closePopup('popupSkill');
+}
+
+// ===== CHỌN KIẾM TỪ BẢNG W3 =====
+function selectWeapon(wpId) {
+  if (S.currentForm === 3) { showSystemAlert("⛔ God Form đã tự dùng SUPER GOD SWORD!"); closePopup('popupWeapon'); return; }
+  const prevWeapon = S.currentWeapon;
+  S.currentWeapon = wpId;
+  const wNames = ["","FULL POWER SWORD","RAINBOW MAGIC SWORD","GRAND GOD SWORD"];
+  addLog("🗡️ Trang bị: " + wNames[wpId]);
+  if (prevWeapon !== wpId) clearEnemyStatusOnSwitch();
+  updateUI();
+  closePopup('popupWeapon');
+}
+
+// ===== CHUYỂN ĐỔI PHÍM HỆ THỐNG =====
+function triggerSelectSystem(num) {
+  // ĐIỀU KIỆN DRAGON CORE: cấm F1, F2, W3 khi đang dùng Dragon Core
+  if (S.currentSkillMode === 7 && num !== 4) {
+    showSystemAlert("⛔ CẤM: Đang dùng DRAGON CORE - khóa F1, F2, W3! Bấm D4 để thoát.");
+    return;
+  }
+
+  if (num === 1) { // F1 → Bảng chọn Form
+    updateFormPopupHighlight();
+    openPopup('popupForm');
+    return;
+  }
+  if (num === 2) { // F2 → Bảng chọn Sức mạnh
+    if (S.currentForm === 3) { showSystemAlert("⛔ CẤM: God Form không được dùng F2!"); return; }
+    openPopup('popupSkill');
+    return;
+  }
+  if (num === 3) { // W3 → Bảng chọn Kiếm
+    if (S.currentForm === 3) { showSystemAlert("⛔ CẤM: God Form đã tự dùng SUPER GOD SWORD!"); return; }
+    openPopup('popupWeapon');
+    return;
+  }
+  if (num === 4) { // D4 → Dragon Core bật/tắt
+    // ĐIỀU KIỆN BẮT BUỘC: Phải ở Normal Form (1) VÀ sức mạnh Gốc (0) mới được vào Dragon Core
+    if (S.currentSkillMode === 7) {
+      // Đang Dragon Core → tắt
+      S.currentSkillMode = 0; S.isDragonCoreSemi = false;
+      if (S.dragonFlying) {
+        S.dragonFlying = false;
+        if (S.dragonFlightTimeout) { clearTimeout(S.dragonFlightTimeout); S.dragonFlightTimeout = null; }
+        addLog("🐉 Dragon Core tắt — Bay kết thúc. Trở về bình thường.");
+      } else {
+        addLog("🐉 Dragon Core tắt — Trở về trạng thái bình thường.");
+      }
+      clearEnemyStatusOnSwitch();
+      updateUI();
+      return;
+    }
+    if (S.currentForm !== 1) { showSystemAlert("⛔ CẤM: Phải ở NORMAL FORM mới dùng được D4 Dragon Core!"); return; }
+    if (S.currentSkillMode !== 0) { showSystemAlert("⛔ CẤM: Phải dùng SỨC MẠNH GỐC (không nhánh) mới vào được Dragon Core!"); return; }
+    const prevSkill = S.currentSkillMode;
+    S.currentSkillMode = 7;
+    addLog("🐉 THỨC TỈNH: SỨC MẠNH RỒNG (DRAGON CORE)");
+    playCutscene("DRAGON CORE", "Viên Ngọc Rồng rực lửa găm thẳng vào cơ thể. Da mọc vảy rồng, hiện cặp sừng oai nghiêm và đôi cánh khổng lồ.");
+    if (S.currentSkillMode !== prevSkill) clearEnemyStatusOnSwitch();
+    updateUI();
+  }
+}
+
+function updateUI() {
+  const fTxt = ["", "NORMAL", "SHAPESHIFT", "GOD FORM"];
+  document.getElementById('badgeForm').textContent = "FORM: " + fTxt[S.currentForm];
+  const wTxt = ["", "FULL POWER SWORD", "RAINBOW MAGIC", "GRAND GOD SWORD", "SUPER GOD SWORD"];
+  document.getElementById('badgeWeapon').textContent = "WEAPON: " + wTxt[S.currentWeapon];
+  const mTxt = ["GỐC", "DUNG HỢP MERGE", "SẤM SÉT (LIGHTNING)", "HƯ VÔ (SPACE)", "DÒNG CHẢY (TIME)", "BẤT DIỆT (RECOVERY)", "(ĐÃ XÓA)", "LÕI RỒNG (CORE)"];
+  document.getElementById('badgeSkillMode').textContent = "KỸ NĂNG: " + (S.currentForm === 3 ? "GOD SKILLS" : mTxt[S.currentSkillMode]);
+
+  if (S.currentWeapon === 2) {
+    document.getElementById('nameR').textContent = "Control"; document.getElementById('nameT').textContent = "Erase";
+    document.getElementById('nameY').textContent = "Clone"; document.getElementById('nameU').textContent = "RainbowB";
+  } else if (S.currentWeapon === 3) {
+    document.getElementById('nameR').textContent = "Buff DMG"; document.getElementById('nameT').textContent = "Stun 10s";
+    document.getElementById('nameY').textContent = "XuyênGiáp"; document.getElementById('nameU').textContent = "Buff DEF";
+  } else {
+    document.getElementById('nameR').textContent = "Khóa"; document.getElementById('nameT').textContent = "Khóa";
+    document.getElementById('nameY').textContent = "Khóa"; document.getElementById('nameU').textContent = "Khóa";
+  }
+
+  let lbs = SKILL_LABELS.goc;
+  if (S.currentForm === 3) lbs = SKILL_LABELS.godForm;
+  else if (S.currentSkillMode === 1) lbs = SKILL_LABELS.merge;
+  else if (S.currentSkillMode === 2) lbs = SKILL_LABELS.lightning;
+  else if (S.currentSkillMode === 3) lbs = SKILL_LABELS.space;
+  else if (S.currentSkillMode === 4) lbs = SKILL_LABELS.time;
+  else if (S.currentSkillMode === 5) lbs = SKILL_LABELS.recovery;
+  
+  else if (S.currentSkillMode === 7) lbs = SKILL_LABELS.dragon;
+
+  document.getElementById('lblZ').textContent = lbs.Z; document.getElementById('lblX').textContent = lbs.X;
+  document.getElementById('lblC').textContent = lbs.C; document.getElementById('lblV').textContent = lbs.V;
+  document.getElementById('lblB').textContent = lbs.B; document.getElementById('lblN').textContent = lbs.N;
+  document.getElementById('lblM').textContent = lbs.M; document.getElementById('lblJ').textContent = lbs.J;
+  document.getElementById('lblF').textContent = lbs.F;
+}
+
+function addLog(txt) {
+  const logBox = document.getElementById('combatLog');
+  const d = document.createElement('div');
+  d.style.fontSize = '10px'; d.style.color = '#00ffff'; d.style.background = 'rgba(0,0,0,0.7)';
+  d.style.padding = '2px 6px'; d.style.borderLeft = '3px solid #ffcc00';
+  d.textContent = txt; logBox.prepend(d);
+  setTimeout(() => d.remove(), 3000);
+}
+
+// KÍCH HOẠT PHẢN DAMAGE (Static Shield / Storm Field / Time Loop F): trong durationMs, mọi sát thương
+// quái/boss gây cho player sẽ bị phản ngược lại chính kẻ địch đó thay vì trừ máu player.
+function activateReflect(durationMs, title) {
+  S.reflectDamageActive = true;
+  clearTimeout(S.reflectTimeout);
+  S.reflectTimeout = setTimeout(() => { S.reflectDamageActive = false; }, durationMs);
+  addLog(`🔄 [${title}] Kích hoạt phản damage trong ${(durationMs/1000)}s!`);
+}
+function dealDamage(amount, title) {
+  let finalDmg = amount;
+  if (S.buffDamageActive) finalDmg = Math.floor(finalDmg * 1.5);
+  // Shapeshift Form: +15% DMG (không áp dụng cho Full Power Merge)
+  if (S.currentForm === 2 && S.currentSkillMode !== 1) {
+    const before = finalDmg;
+    finalDmg = Math.floor(finalDmg * 1.15);
+    if (finalDmg !== before) addLog('🌀 [Shapeshift +15%] ' + before + ' → ' + finalDmg + ' DMG');
+  }
+  // Gây sát thương diện rộng lên cả Boss và Quái nếu nằm trong tầm đánh
+  if (!S.boss.isDead && Math.abs(S.boss.x - S.px) < 250) {
+    S.boss.hp -= finalDmg;
+    if (S.boss.hp <= 0) { S.boss.hp = 0; S.boss.isDead = true; S.kills += 2; addLog("💀 BOSS HẠ GỤC! +2 KILL!"); }
+  }
+  if (!S.mob.isDead && Math.abs(S.mob.x - S.px) < 250) {
+    S.mob.hp -= finalDmg;
+    if (S.mob.hp <= 0) { S.mob.hp = 0; S.mob.isDead = true; S.kills += 1; addLog("💀 QUÁI HẠ GỤC! +1 KILL!"); }
+  }
+  // 9 quái mới: cũng nhận damage diện rộng giống quái thường
+  S.extraMobs.forEach(m => {
+    if (!m.isDead && Math.abs(m.x - S.px) < 250) {
+      m.hp -= finalDmg;
+      if (m.hp <= 0) { m.hp = 0; m.isDead = true; S.kills += 1; addLog(`💀 QUÁI #${m.id} HẠ GỤC! +1 KILL!`); }
+    }
+  });
+
+  document.getElementById('killText').textContent = S.kills;
+  document.getElementById('bossHpText').textContent = `${S.boss.hp}/10000`;
+  document.getElementById('mobHpText').textContent = `${S.mob.hp}/5000`;
+  document.getElementById('bossBar').style.width = (S.boss.hp / S.boss.maxHp * 100) + '%';
+  document.getElementById('mobBar').style.width = (S.mob.hp / S.mob.maxHp * 100) + '%';
+  updateExtraMobsUI();
+  addLog(`💥 [${title}]: Đã xả ${finalDmg} DMG!`);
+}
+
+// Cập nhật thanh máu tổng hợp của 9 quái mới
+function updateExtraMobsUI() {
+  let totalHp = 0, totalMax = 0;
+  S.extraMobs.forEach(m => { totalHp += m.hp; totalMax += m.maxHp; });
+  document.getElementById('extraMobsHpText').textContent = `${totalHp}/${totalMax}`;
+  document.getElementById('extraMobsBar').style.width = (totalHp / totalMax * 100) + '%';
+}
+
+// GÂY CHOÁNG THẬT lên Boss/Quái trong tầm đánh: dừng di chuyển + không thể tấn công player trong durationMs
+function applyStun(durationMs, title) {
+  let hitAny = false;
+  if (!S.boss.isDead && Math.abs(S.boss.x - S.px) < 250) {
+    S.boss.isStunned = true; hitAny = true;
+    if (S.boss.stunTimeout) clearTimeout(S.boss.stunTimeout);
+    S.boss.stunTimeout = setTimeout(() => { S.boss.isStunned = false; S.boss.stunTimeout = null; }, durationMs);
+    S.idleNearBossTimer = 0; // reset bộ đếm đánh player ngay lập tức
+  }
+  if (!S.mob.isDead && Math.abs(S.mob.x - S.px) < 250) {
+    S.mob.isStunned = true; hitAny = true;
+    if (S.mob.stunTimeout) clearTimeout(S.mob.stunTimeout);
+    S.mob.stunTimeout = setTimeout(() => { S.mob.isStunned = false; S.mob.stunTimeout = null; }, durationMs);
+    S.idleNearMobTimer = 0; // reset bộ đếm đánh player ngay lập tức
+  }
+  // 9 quái mới cũng bị choáng nếu trong tầm
+  S.extraMobs.forEach(m => {
+    if (!m.isDead && Math.abs(m.x - S.px) < 250) {
+      m.isStunned = true; hitAny = true;
+      if (m.stunTimeout) clearTimeout(m.stunTimeout);
+      m.stunTimeout = setTimeout(() => { m.isStunned = false; m.stunTimeout = null; }, durationMs);
+      m.idleTimer = 0;
+    }
+  });
+  if (hitAny) addLog(`🌀 [${title}]: Gây choáng ${(durationMs/1000)}s lên kẻ địch trong tầm!`);
+  else addLog(`⚠️ [${title}]: Không có kẻ địch trong tầm để choáng!`);
+}
+
+function performAttackM1() {
+  if (S.currentForm === 3) {
+    let gDmg = (S.currentWeapon === 4) ? 150 : 60;
+    S.slashEffect = {active: true, timer: 10, x: S.px + (S.facing * 60), y: S.py - 30, w: 140, h: 80, type: 'god'};
+    dealDamage(gDmg, "Super God Blade True DMG");
+    return;
+  }
+  if (S.currentSkillMode === 1 && S.currentWeapon === 1) { // Chaos Harmony M1 Cường hóa 10x
+    S.slashEffect = {active: true, timer: 12, x: S.px + (S.facing * 70), y: S.py - 40, w: 190, h: 100, type: 'merge'};
+    dealDamage(400, "M1 Sovereign Edge Crit");
+    return;
+  }
+  if (S.currentSkillMode === 7) { // Vuốt rồng lửa
+    let dDmg = S.isDragonCoreSemi ? 180 : 30;
+    S.slashEffect = {active: true, timer: 10, x: S.px + (S.facing * 90), y: S.py - 30, w: 220, h: 70, type: 'dragon'};
+    dealDamage(dDmg, "Blazing Dragon Claw");
+    return;
+  }
+
+  let base = 20;
+  if (S.currentWeapon === 2) base = 17;
+  if (S.currentWeapon === 3) base = 12;
+  S.slashEffect = {active: true, timer: 8, x: S.px + (S.facing * 40), y: S.py - 20, w: 80, h: 50, type: 'normal'};
+  dealDamage(base, "Chém Thường");
+}
+
+function castChemicalM8() {
+  // Chỉ dùng được khi đang ở nhánh Sấm Sét VÀ không ở God Form
+  if (S.currentForm === 3) { showSystemAlert("⛔ [M8] Chemical Reaction không dùng được ở God Form!"); return; }
+  if (S.currentSkillMode !== 2) {
+    showSystemAlert("⛔ [M8] Chemical Reaction chỉ dùng được khi đang dùng nhánh SẤM SÉT (Lightning)! Bấm F2 để chọn Lightning.");
+    return;
+  }
+  S.isCutscenePlaying = true;
+  S.idleNearBossTimer = 0; S.idleNearMobTimer = 0;
+  playCutscene("THIÊN LÔI KIẾM CẢNH", "Không gian tối sầm, hai mắt Thợ Săn phát sáng rực rỡ luồng điện lam tím, lao vào chém đôi đối thủ.");
+  setTimeout(() => {
+    dealDamage(1000000000, "⚡ M8 Chemical Reaction: 1 TỶ DMG");
+    S.kills += 2; document.getElementById("killText").textContent = S.kills; addLog("💀 [M8] Chemical Reaction +2 KILL bonus!");
+    S.isCutscenePlaying = false;
+  }, 1600);
+}
+
+function castSubSkill(key) {
+  if (S.currentForm === 3) return;
+  // Trừ mana cho sub-skill (30 mana/chiêu)
+  if (!useMana(30, 'Sub-skill ' + key)) return;
+  if (S.currentWeapon === 2) {
+    // [R] Control Target: 100 DMG + khống chế/choáng thật 10 giây (xích cầu vồng trói chặt)
+    if (key === 'R') { dealDamage(100, "Xích Cầu Vồng Trói Chặt"); applyStun(10000, "R - Control Target"); }
+    else if (key === 'T') { dealDamage(S.boss.hp + S.mob.hp + 99999999, "🌈 T - RAINBOW ERASE: VÔ HẠN DMG"); addLog("☄️ [T] Rainbow Vô Hạn - Xóa sạch HP kẻ địch!"); }
+    else if (key === 'Y') dealDamage(150, "Clone Target Đấm Phản");
+    else if (key === 'U') dealDamage(150, "Bộc Phá Cầu Vồng");
+  } else if (S.currentWeapon === 3) {
+    if (key === 'R') {
+      S.buffDamageActive = true;
+      if (S.buffDamageTimeout) clearTimeout(S.buffDamageTimeout);
+      S.buffDamageTimeout = setTimeout(() => {
+        S.buffDamageActive = false; S.buffDamageTimeout = null;
+        addLog("⚔️ Buff +50% Sát thương hết hiệu lực!");
+      }, 15000);
+      addLog("[R] Buff +50% Sát thương kích hoạt trong 15 giây!");
+    }
+    // [T] Stun: gây choáng 10 giây (tự hết qua applyStun)
+    else if (key === 'T') { applyStun(10000, "T - Stun Grand God Sword"); }
+    else if (key === 'U') {
+      S.buffDefenseActive = true;
+      if (S.buffDefenseTimeout) clearTimeout(S.buffDefenseTimeout);
+      S.buffDefenseTimeout = setTimeout(() => {
+        S.buffDefenseActive = false; S.buffDefenseTimeout = null;
+        addLog("🛡️ Khiên Chắn hết hiệu lực!");
+      }, 15000);
+      addLog("[U] Khiên Chắn Giảm 100% Sát Thương trong 15 giây!");
+    }
+  }
+}
+
+function castMainSkill(key) {
+  if (S.currentForm === 3) { // BỘ CHIÊU THỨC TRUE DMG CỦA GOD FORM
+    if (key === 'Z') dealDamage(180, "Divine Wrath Strike");
+    else if (key === 'X') { playCutscene("HEAVENLY GALAXY SLASH", "Nhát chém tối thượng chém đôi vũ trụ song song, không thể né đỡ."); dealDamage(250, "Galaxy One-Shot"); }
+    else if (key === 'C') dealDamage(200, "Galaxy Manipulation");
+    else if (key === 'V') dealDamage(200, "Godly Will Space Crush");
+    else if (key === 'B') {
+      // Toggle: nếu boss hoặc mob (còn sống, trong tầm) đang bị đóng băng do B gây ra -> tắt đóng băng
+      const bossFrozenNow = !S.boss.isDead && S.boss.frozen;
+      const mobFrozenNow = !S.mob.isDead && S.mob.frozen;
+      if (bossFrozenNow || mobFrozenNow) {
+        if (bossFrozenNow) { S.boss.frozen = false; clearTimeout(S.boss.frozenTimeout); S.boss.frozenTimeout = null; }
+        if (mobFrozenNow) { S.mob.frozen = false; clearTimeout(S.mob.frozenTimeout); S.mob.frozenTimeout = null; }
+        S.extraMobs.forEach(m => { if (m.frozen) { m.frozen = false; if (m.frozenTimeout) { clearTimeout(m.frozenTimeout); m.frozenTimeout = null; } } });
+        addLog("[B] Eternal Freeze — Đã TẮT đóng băng! Boss/Quái/9 Quái hoạt động trở lại.");
+      } else {
+        if (!S.boss.isDead) S.boss.frozen = true;
+        if (!S.mob.isDead) S.mob.frozen = true;
+        S.extraMobs.forEach(m => { if (!m.isDead) { m.frozen = true; if (m.frozenTimeout) clearTimeout(m.frozenTimeout); m.frozenTimeout = null; } });
+        S.idleNearBossTimer = 0; S.idleNearMobTimer = 0;
+        addLog("[B] Eternal Freeze — Đóng băng thời gian vĩnh viễn! Boss/Quái/9 Quái bất động! (Bấm B tắt)");
+      }
+    }
+    else if (key === 'N') { S.hp = S.maxHp; document.getElementById('hpText').textContent = formatBig(S.hp); document.getElementById('hpBar').style.width = '100%'; addLog("[N] Kiến tạo vũ trụ, hồi đầy chỉ số!"); }
+    else if (key === 'M') { addLog("[M] Dark Galaxy Core - Tăng tối đa bạo kích!"); }
+    else if (key === 'J') { playCutscene("TRUTH OF GOD - APOCALYPSE", "Xóa sổ hoàn toàn tên và sự tồn tại của kẻ địch khỏi đa vũ trụ."); dealDamage(S.boss.hp + S.mob.hp + 99999999, "☄️ J - APOCALYPSE: VÔ HẠN DMG"); }
+    else if (key === 'F') { playCutscene("ETERNAL COSMIC STORM", "Đại chiêu bão lôi đình vũ trụ nổ tung liên tiếp 10 hành tinh."); dealDamage(250, "Cosmic Storm San Phẳng Map"); }
+    return;
+  }
+
+  if (S.currentSkillMode === 1) { // BỘ CHIÊU HỖN MANG DUNG HỢP
+    if (key === 'Z') dealDamage(160, "Quintuple Energy Cannon");
+    else if (key === 'X') dealDamage(165, "Galaxy Eraser Slash");
+    else if (key === 'C') dealDamage(170, "Planetary Chaos Burst");
+    else if (key === 'V') dealDamage(180, "Five-Element Impact Beam");
+    else if (key === 'B') dealDamage(180, "Cosmic Fracture");
+    else if (key === 'N') dealDamage(175, "Void Vortex Blackhole");
+    else if (key === 'M') dealDamage(200, "Molecular Acceleration");
+    else if (key === 'J') dealDamage(250, "Samsara Destruction One-Shot");
+    else if (key === 'F') { playCutscene("CHAOS EXTINCTION", "Cắm kiếm phát nổ năng lượng nuốt chửng toàn server."); dealDamage(300, "Chaos Extinction"); }
+    return;
+  }
+
+  if (S.currentSkillMode === 7) { // BỘ CHIÊU LÕI RỒNG DRAGON CORE
+    if (key === 'Z') dealDamage(55, "Pyro Dragon Blast");
+    else if (key === 'X') dealDamage(70, "Fatal Dragon Strike");
+    else if (key === 'C') dealDamage(65, "Heavenly Dragon Inferno");
+    else if (key === 'V') {
+      if (!S.dragonFlying) {
+        // Bật bay 30 giây
+        S.dragonFlying = true;
+        if (S.dragonFlightTimeout) clearTimeout(S.dragonFlightTimeout);
+        S.dragonFlightTimeout = setTimeout(() => {
+          S.dragonFlying = false;
+          S.dragonFlightTimeout = null;
+          document.getElementById('btnJump').innerHTML = '↑ NHẢ';
+          const groundY1 = S.platforms[0] ? S.platforms[0].y : canvas.height * 0.82;
+          if (S.py >= groundY1) { S.py = groundY1; S.pvy = 0; S.onGround = true; }
+          else { S.pvy = 0; }
+          addLog("🐉 Flying Dragon Ascent hết hiệu lực — Hạ cánh!");
+        }, 30000);
+        document.getElementById('btnJump').innerHTML = '🐉 LƯỚT';
+        addLog("[V] Flying Dragon Ascent — BAY LƯỢN! W=lên S=xuống A/D=ngang SPACE/NHẢ=lướt!");
+      } else {
+        // Tắt bay
+        S.dragonFlying = false;
+        if (S.dragonFlightTimeout) { clearTimeout(S.dragonFlightTimeout); S.dragonFlightTimeout = null; }
+        document.getElementById('btnJump').innerHTML = '↑ NHẢ';
+        const groundY2 = S.platforms[0] ? S.platforms[0].y : canvas.height * 0.82;
+        if (S.py >= groundY2) { S.py = groundY2; S.pvy = 0; S.onGround = true; }
+        else { S.pvy = 0; }
+        addLog("🐉 Hạ cánh — Ngừng bay theo lệnh!");
+      }
+    }
+    else if (key === 'B') {
+      S.isDragonCoreSemi = !S.isDragonCoreSemi;
+      if (S.isDragonCoreSemi) {
+        addLog("[B] 🐉 BIẾN HÌNH SEMI-DRAGON! M1 +500% DMG/DEF! Bấm B lần nữa để tắt.");
+      } else {
+        addLog("[B] Tắt biến hình Semi-Dragon — Trở về dạng bình thường.");
+      }
+    }
+    else if (key === 'N') { dealDamage(60, "Dragon Spirit Roar"); applyStun(10000, "N - Dragon Spirit Roar Choáng"); }
+    else if (key === 'M') dealDamage(100, "Draconic Comet Fall");
+    else if (key === 'J') dealDamage(50, "Dragonic Soul Devour");
+    else if (key === 'F') { playCutscene("WESTERN DARK DRAGON GOD", "Tây Phương Hắc Long Thần phóng hơi thở bóng tối nuốt chửng chiến trường."); dealDamage(375, "Dragon Ultimate"); }
+    return;
+  }
+  
+  // Các nhánh lẻ ở trạng thái Normal Form hoặc Shapeshift Form (Phím Số 2) - đầy đủ theo tài liệu gốc
+  if ((S.currentForm === 1 || S.currentForm === 2) && S.currentSkillMode === 2) { // ⚡ LIGHTNING BRANCH
+    if (key === 'Z') dealDamage(35, "Thunder Dash");
+    else if (key === 'X') dealDamage(50, "Nine Heavens Thunderbolt");
+    else if (key === 'C') dealDamage(40, "Electric Claw Strike");
+    else if (key === 'V') { dealDamage(35, "Static Shield"); activateReflect(8000, "V - Static Shield"); }
+    else if (key === 'B') { dealDamage(30, "Voltage Lock"); applyStun(3000, "B - Voltage Lock Cấm Cử Động 3s"); }
+    else if (key === 'N') { dealDamage(15, "Storm Field"); activateReflect(8000, "N - Storm Field"); }
+    else if (key === 'M') dealDamage(65, "Lightning Dragon Burst");
+    else if (key === 'J') dealDamage(80, "Ultimate Catastrophe");
+    else if (key === 'F') { dealDamage(90, "Tê Liệt Vĩnh Viễn"); applyStun(5000, "F - Tê Liệt 5s"); addLog("⚡ [F] Cột lôi đình - Khóa Q,E,F trong 5 giây!"); }
+  }
+  if ((S.currentForm === 1 || S.currentForm === 2) && S.currentSkillMode === 3) { // 🌀 SPACE BRANCH
+    if (key === 'Z') dealDamage(30, "Spatial Grip");
+    else if (key === 'X') { // Dimensional Wall: toggle vô hạn, bấm lại để tắt
+      if (S.dimensionalWall.active) {
+        S.dimensionalWall.active = false;
+        S.dimensionalWall.duration = 0;
+        addLog("[X] Dimensional Wall — TẮT tường không gian!");
+      } else {
+        S.dimensionalWall = { active: true, duration: Infinity };
+        addLog("[X] Dimensional Wall — BẬT! Tường vô hạn, 70 DMG + Choáng 10s mỗi 0.5 giây! Bấm X để tắt.");
+      }
+    }
+    else if (key === 'C') dealDamage(35, "Space Turbulence");
+    else if (key === 'V') dealDamage(65, "Void Collapse");
+    else if (key === 'B') dealDamage(55, "Spatial Slasher");
+    else if (key === 'N') {
+      if (S.reflectDamageActive) {
+        S.reflectDamageActive = false;
+        clearTimeout(S.reflectTimeout); S.reflectTimeout = null;
+        addLog("[N] Eternal Mirror Reflection — Đã TẮT phản damage!");
+      } else {
+        activateReflect(99999999, "N - Eternal Mirror Reflection");
+        addLog("[N] Eternal Mirror Reflection — Phản 100% sát thương nhận vào vĩnh viễn! (Bấm N lần nữa để tắt)");
+      }
+    }
+    else if (key === 'M') dealDamage(40, "Void Chains");
+    else if (key === 'J') dealDamage(150, "Space Shatter");
+    else if (key === 'F') { dealDamage(100, "Đập Nát Không Gian"); addLog("🌀 [F] Giam mảnh vỡ — Dịch chuyển ngẫu nhiên khắp bản đồ!"); }
+  }
+  if ((S.currentForm === 1 || S.currentForm === 2) && S.currentSkillMode === 4) { // ⏳ TIME BRANCH
+    if (key === 'Z') {
+      S.idleNearBossTimer = 0; S.idleNearMobTimer = 0;
+      if (!S.boss.isDead) {
+        S.boss.frozen = true;
+        clearTimeout(S.boss.frozenTimeout);
+        S.boss.frozenTimeout = setTimeout(() => { S.boss.frozen = false; }, 10000);
+      }
+      if (!S.mob.isDead) {
+        S.mob.frozen = true;
+        clearTimeout(S.mob.frozenTimeout);
+        S.mob.frozenTimeout = setTimeout(() => { S.mob.frozen = false; }, 10000);
+      }
+      S.extraMobs.forEach(m => {
+        if (!m.isDead) {
+          m.frozen = true;
+          if (m.frozenTimeout) clearTimeout(m.frozenTimeout);
+          m.frozenTimeout = setTimeout(() => { m.frozen = false; m.frozenTimeout = null; }, 10000);
+        }
+      });
+      addLog("[Z] Time Stop 10s — Boss/Quái/9 Quái đóng băng hoàn toàn!");
+    }
+    else if (key === 'X') { addLog("[X] Time Acceleration — Tăng tốc độ hành động!"); }
+    else if (key === 'C') { // Temporal Slow: giảm tốc độ di chuyển boss/mob xuống 50% trong 10 giây
+      S.temporalSlow = true;
+      if (S.temporalSlowTimeout) clearTimeout(S.temporalSlowTimeout);
+      S.temporalSlowTimeout = setTimeout(() => { S.temporalSlow = false; addLog("⏳ Temporal Slow hết hiệu lực."); }, 10000);
+      addLog("[C] Temporal Slow — Boss/Quái di chuyển chậm 50% trong 10 giây!");
+    }
+    else if (key === 'V') dealDamage(45, "Aging Touch");
+    else if (key === 'B') { // Temporal Echo: phản ngược toàn bộ DMG mà địch gây ra trong 8 giây
+      activateReflect(8000, "B - Temporal Echo Phản 100% DMG");
+      addLog("[B] Temporal Echo — Phản 100% DMG quá khứ đối thủ đã tung ra trong 8s!");
+    }
+    else if (key === 'N') { addLog("[N] Time Reversal — Đảo ngược thời gian kích hoạt!"); }
+    else if (key === 'M') { // Damage Delay: hoãn 5 giây rồi mới gây DMG lên địch
+      addLog("[M] Damage Delay — Trì hoãn sát thương 5 giây...");
+      setTimeout(() => { dealDamage(100, "M - Damage Delay (Trì Hoãn Phát Nổ)"); }, 5000);
+    }
+    else if (key === 'J') dealDamage(90, "Time Loop");
+    else if (key === 'F') { activateReflect(6000, "F - Vòng Lặp Thời Gian"); addLog("⏳ [F] Vòng lặp thời gian 6s — Sát thương địch tự phản lại chính họ!"); }
+  }
+  if ((S.currentForm === 1 || S.currentForm === 2) && S.currentSkillMode === 5) { // 🩹 RECOVERY BRANCH
+    if (key === 'Z') { // Divine Healing: hồi 100% HP tức thì
+      S.hp = S.maxHp;
+      document.getElementById('hpText').textContent = formatBig(S.hp);
+      document.getElementById('hpBar').style.width = '100%';
+      addLog("[Z] Divine Healing — Hồi 100% HP và mana tức thì!");
+    }
+    else if (key === 'X') { // Cell Regeneration: hồi 15 HP/giây trong 20 giây
+      let regenTick = 0;
+      if (S.cellRegenInterval) clearInterval(S.cellRegenInterval);
+      S.cellRegenInterval = setInterval(() => {
+        regenTick++;
+        S.hp = Math.min(S.maxHp, S.hp + 15);
+        document.getElementById('hpText').textContent = S.hp;
+        document.getElementById('hpBar').style.width = (S.hp / S.maxHp * 100) + '%';
+        if (regenTick >= 20) { clearInterval(S.cellRegenInterval); S.cellRegenInterval = null; addLog("🩹 Cell Regeneration hết hiệu lực."); }
+      }, 1000);
+      addLog("[X] Cell Regeneration — Hồi 15 HP/giây trong 20 giây!");
+    }
+    else if (key === 'C') { // Restoration Field: hồi 20 HP/giây trong 20 giây
+      let fieldTick = 0;
+      if (S.restorationInterval) clearInterval(S.restorationInterval);
+      S.restorationInterval = setInterval(() => {
+        fieldTick++;
+        S.hp = Math.min(S.maxHp, S.hp + 20);
+        document.getElementById('hpText').textContent = S.hp;
+        document.getElementById('hpBar').style.width = (S.hp / S.maxHp * 100) + '%';
+        if (fieldTick >= 20) { clearInterval(S.restorationInterval); S.restorationInterval = null; addLog("🩹 Restoration Field hết hiệu lực."); }
+      }, 1000);
+      addLog("[C] Restoration Field — Hồi 20 HP/giây trong 20 giây!");
+    }
+    else if (key === 'V') { addLog("[V] Soul Purification kích hoạt!"); }
+    else if (key === 'B') {
+      S.infiniteMana = true;
+      S.mana = S.maxMana; // hồi đầy mana ngay
+      updateManaUI();
+      if (S.infiniteManaTimeout) clearTimeout(S.infiniteManaTimeout);
+      S.infiniteManaTimeout = setTimeout(() => {
+        S.infiniteMana = false;
+        S.infiniteManaTimeout = null;
+        addLog("💙 Infinite Mana hết hiệu lực sau 5 phút!");
+        updateManaUI();
+      }, 300000); // 5 phút
+      addLog("[B] 💙 INFINITE MANA 5 PHÚT! Mọi chiêu đều miễn phí!");
+    }
+    else if (key === 'N') { // Immortality toggle: vô hạn thời gian, bấm lại để tắt
+      if (S.immortalActive) {
+        S.immortalActive = false;
+        if (S.immortalTimeout) { clearTimeout(S.immortalTimeout); S.immortalTimeout = null; }
+        addLog("[N] Bất Tử TẮT — Trở lại bình thường!");
+      } else {
+        S.immortalActive = true;
+        addLog("[N] BẤT TỬ VÔ HẠN! Không thể bị giết! Bấm N lần nữa để tắt.");
+      }
+    }
+    else if (key === 'M') { addLog("[M] Energy Equilibrium kích hoạt!"); }
+    else if (key === 'J') { addLog("[J] Absolute Assimilation kích hoạt!"); }
+    else if (key === 'F') {
+      dealDamage(100, "F - Hút Máu Hồi Phục");
+      S.hp = Math.min(500, S.hp + 100);
+      document.getElementById('hpText').textContent = S.hp;
+      document.getElementById('hpBar').style.width = (S.hp / S.maxHp * 100) + '%';
+      addLog("🩹 [F] HÚT MÁU: -100 HP kẻ địch, +100 HP God Hunter!");
+    }
+  }
+}
+
+// JOYSTICK & TOUCH EVENTS
+const zone = document.getElementById('joyZone');
+const knob = document.getElementById('joyKnob');
+zone.addEventListener('touchstart', e => { S.joyActive = true; const r = zone.getBoundingClientRect(); S.joyBaseX = r.left + r.width/2; S.joyBaseY = r.top + r.height/2; });
+zone.addEventListener('touchmove', e => {
+  if(!S.joyActive) return; const t = e.touches[0]; let dx = t.clientX - S.joyBaseX, dy = t.clientY - S.joyBaseY;
+  const d = Math.sqrt(dx*dx+dy*dy); if(d>35) { dx=(dx/d)*35; dy=(dy/d)*35; } S.joyDX = dx; S.joyDY = dy;
+  knob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+});
+zone.addEventListener('touchend', () => { S.joyActive = false; S.joyDX = 0; knob.style.transform = 'translate(-50%, -50%)'; });
+
+document.getElementById('btnJump').addEventListener('touchstart', () => {
+  if (S.dragonFlying) {
+    // Lướt trên không: dash ngang mạnh theo hướng đang đi
+    const dashDir = S.facing || 1;
+    S.px = Math.max(60, Math.min((S.platforms[0]?.w || canvas.width) - 60, S.px + dashDir * 120));
+    addLog("🐉 LƯỚT TRÊN KHÔNG! Dash " + (dashDir > 0 ? "→" : "←") + " 120px!");
+  } else if (S.onGround && useMana(20, 'Nhảy')) {
+    S.pvy = -12; S.onGround = false;
+  }
+});
+document.getElementById('btnAttack').addEventListener('touchstart', () => performAttackM1());
+
+// ═══════════════════════════════════════════════════════
+// NÚT E — PERFECT BLOCK + PARRY SYSTEM
+// Giữ bao lâu → block bấy lâu (không giới hạn, không có 4 giây)
+// 2 giây đầu = PERFECT WINDOW: nếu bị đánh → PARRY!
+//   → PARRY: phản damage 20 giây + M2 trở thành Parry Strike (1000 DMG + x5) trong 10 giây
+// ═══════════════════════════════════════════════════════
+const btnBlockEl = document.getElementById('btnBlock');
+
+function activateParry(fromTitle) {
+  // Chỉ trigger 1 lần trong perfect window
+  S.blockPerfectWindow = false;
+
+  // Bật phản damage 120 giây
+  S.reflectDamageActive = true;
+  if (S.reflectTimeout) clearTimeout(S.reflectTimeout);
+  S.reflectTimeout = setTimeout(() => {
+    S.reflectDamageActive = false;
+    addLog("🔄 [BLOCK PERFECT] Phản damage hết hiệu lực (120 giây)!");
+  }, 120000);
+
+  addLog(`🔄 [BLOCK PERFECT] Chặn đòn hoàn hảo từ ${fromTitle}! Phản damage 120 giây!`);
+}
+
+function resetBlockUI() {
+  S.isBlocking = false;
+  S.blockPerfectWindow = false;
+  btnBlockEl.style.boxShadow = '0 0 10px #3399ff';
+  btnBlockEl.style.background = 'rgba(20,40,90,0.85)';
+  btnBlockEl.style.borderColor = '#3399ff';
+  btnBlockEl.style.color = '#3399ff';
+  btnBlockEl.innerHTML = 'E<span style="font-size:7px">BLOCK</span>';
+}
+
+btnBlockEl.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if (S.isBlocking) return;
+  S.isBlocking = true;
+  S.blockPerfectWindow = true;  // bắt đầu perfect window 2 giây
+  btnBlockEl.style.boxShadow = '0 0 18px #00ffff';
+  btnBlockEl.style.background = 'rgba(0,80,180,0.9)';
+  btnBlockEl.style.borderColor = '#00ffff';
+  btnBlockEl.innerHTML = '🛡️<span style="font-size:7px">BLOCK!</span>';
+  addLog("🛡️ [E] BLOCK! Giữ để tiếp tục — 2 giây đầu: PERFECT WINDOW!");
+  // Tắt perfect window sau 2 giây (giữ lâu hơn cũng không parry nữa)
+  setTimeout(() => {
+    if (S.blockPerfectWindow) {
+      S.blockPerfectWindow = false;
+      if (S.isBlocking) {
+        btnBlockEl.style.boxShadow = '0 0 10px #3399ff';
+        btnBlockEl.style.background = 'rgba(0,50,130,0.85)';
+        btnBlockEl.innerHTML = '🛡️<span style="font-size:7px">BLOCK</span>';
+      }
+    }
+  }, 2000);
+}, {passive: false});
+
+// Mousedown/mouseup cho PC (click chuột vào nút)
+btnBlockEl.addEventListener('mousedown', e => {
+  e.preventDefault();
+  if (S.isBlocking) return;
+  S.isBlocking = true;
+  S.blockPerfectWindow = true;
+  btnBlockEl.style.boxShadow = '0 0 18px #00ffff';
+  btnBlockEl.style.background = 'rgba(0,80,180,0.9)';
+  btnBlockEl.style.borderColor = '#00ffff';
+  btnBlockEl.innerHTML = '🛡️<span style="font-size:7px">BLOCK!</span>';
+  addLog("🛡️ [E] BLOCK! Giữ để tiếp tục — 2 giây đầu: PERFECT WINDOW!");
+  setTimeout(() => {
+    if (S.blockPerfectWindow) {
+      S.blockPerfectWindow = false;
+      if (S.isBlocking) {
+        btnBlockEl.style.boxShadow = '0 0 10px #3399ff';
+        btnBlockEl.style.background = 'rgba(0,50,130,0.85)';
+        btnBlockEl.innerHTML = '🛡️<span style="font-size:7px">BLOCK</span>';
+      }
+    }
+  }, 2000);
+});
+
+btnBlockEl.addEventListener('touchend', () => { resetBlockUI(); });
+btnBlockEl.addEventListener('touchcancel', () => { resetBlockUI(); });
+btnBlockEl.addEventListener('mouseup', () => { resetBlockUI(); });
+btnBlockEl.addEventListener('mouseleave', () => { if (S.isBlocking) resetBlockUI(); });
+
+// Keyboard E
+// E và keyup xử lý trong PC keyboard handler
+
+// ═══════════════════════════════════════════════════════
+// NÚT M2 — ĐÁ (luôn cố định: 15 DMG + choáng 1.5s)
+// NÚT M3 — Parry Strike: luôn dùng được, 50,000 DMG. Khi đang trong cửa sổ x5 (sau khi Block trúng đòn
+// trong 2 giây đầu, kéo dài 60 giây) thì M3 gây 250,000 DMG (50,000 x5, dealDamage tự nhân).
+// ═══════════════════════════════════════════════════════
+function doM2() {
+  S.slashEffect = {active: true, timer: 8, x: S.px + (S.facing * 50), y: S.py - 15, w: 70, h: 40, type: 'normal'};
+  dealDamage(15, "M2 - Cú Đá");
+  applyStun(1500, "M2 - Cú Đá Choáng 1.5s");
+}
+
+function doM3() {
+  // Luôn dùng được, không cần điều kiện. Damage gốc 50,000 — tự động x5 thành 250,000 khi đang trong cửa sổ x5 (dealDamage xử lý nhân x5).
+  S.slashEffect = {active: true, timer: 14, x: S.px + (S.facing * 60), y: S.py - 20, w: 120, h: 70, type: 'god'};
+  dealDamage(50000, "⚡ PARRY STRIKE");
+}
+
+document.getElementById('btnKick').addEventListener('touchstart', e => { e.preventDefault(); doM2(); }, {passive: false});
+document.getElementById('btnM3').addEventListener('touchstart', e => { e.preventDefault(); doM3(); }, {passive: false});
+document.addEventListener('contextmenu', e => { e.preventDefault(); doM2(); });
+// Phím K xử lý trong PC keyboard handler
+
+
+// ═══════════════════════════════════════════════════════════════════
+// PC KEYBOARD FULL SUPPORT
+// ═══════════════════════════════════════════════════════════════════
+const S_keys = {}; // tracking held keys for movement
+let popupWsIndex = 0; // chỉ mục W/S navigation
+
+document.addEventListener('keydown', e => {
+  // Không spam repeat trừ movement
+  const isMovement = ['KeyA','KeyD','Space'].includes(e.code);
+  S_keys[e.code] = true;
+  if (e.repeat && !isMovement) return;
+
+  const k = e.key;
+  const ku = k.toUpperCase();
+
+  // ── Tab: toggle help ──
+  if (e.code === 'Tab') { e.preventDefault(); toggleTabHelp(); return; }
+  if (e.code === 'Escape') { closeAllPopups(); document.getElementById('tabHelp').style.display='none'; return; }
+
+  // ── Phím số: mở hệ thống chọn ──
+  if (k === '1') { e.preventDefault(); triggerSelectSystem(1); return; }
+  if (k === '2') { e.preventDefault(); triggerSelectSystem(2); return; }
+  if (k === '3') { e.preventDefault(); triggerSelectSystem(3); return; }
+  if (k === '4') { e.preventDefault(); triggerSelectSystem(4); return; }
+
+  // ── Mũi tên lên/xuống điều hướng popup ──
+  const activePopup = ['popupForm','popupSkill','popupWeapon'].find(id => document.getElementById(id).style.display !== 'none');
+  if (activePopup && (e.code === 'ArrowUp' || e.code === 'ArrowDown')) {
+    e.preventDefault();
+    const btns = Array.from(document.getElementById(activePopup).querySelectorAll('button:not([onclick*="closePopup"])'));
+    popupWsIndex = Math.max(0, Math.min(btns.length-1, popupWsIndex + (e.code === 'ArrowDown' ? 1 : -1)));
+    btns.forEach((b,i) => b.style.outline = i===popupWsIndex ? '2px solid #ffcc00' : '');
+    return;
+  }
+  if (activePopup && (e.code === 'Enter' || e.code === 'NumpadEnter')) {
+    e.preventDefault();
+    const btns = Array.from(document.getElementById(activePopup).querySelectorAll('button:not([onclick*="closePopup"])'));
+    if (btns[popupWsIndex]) btns[popupWsIndex].click();
+    popupWsIndex = 0;
+    return;
+  }
+
+  // Không xử lý game input khi popup đang mở
+  if (activePopup) return;
+
+  // ── H: toggle nội tại ─────────────────────────────────────────────
+  if (ku === 'H') { toggleDivineSupremacy(); return; }
+
+  // ── G: M3 Parry Strike ────────────────────────────────────────────
+  if (ku === 'Q') { doM3(); return; }
+
+  // ── Space: nhảy hoặc lướt (khi đang bay) ──────────────────────
+  if (e.code === 'Space' && !e.repeat) {
+    e.preventDefault();
+    document.getElementById('btnJump').dispatchEvent(new Event('touchstart'));
+    return;
+  }
+
+  // ── E block ──────────────────────────────────────────────────────
+  if (ku === 'E' && !S.isBlocking) {
+    S.isBlocking = true; S.blockPerfectWindow = true;
+    addLog("🛡️ [E] BLOCK — Giữ E = block, perfect 2 giây đầu!");
+    setTimeout(() => { S.blockPerfectWindow = false; }, 2000);
+    return;
+  }
+
+  // ── Chiêu bổ trợ R T Y U ─────────────────────────────────────────
+  if (['R','T','Y','U'].includes(ku)) { castSubSkill(ku); return; }
+
+  // ── Chiêu chính Z X C V B N M J F ──────────────────────────────
+  if (['Z','X','C','V','B','N','M','J','F'].includes(ku)) { castMainSkill(ku); return; }
+
+  // ── K: Chemical Reaction ─────────────────────────────────────────
+  if (ku === 'K') { castChemicalM8(); return; }
+});
+
+document.addEventListener('keyup', e => {
+  S_keys[e.code] = false;
+  if (e.key === 'e' || e.key === 'E') resetBlockUI();
+});
+
+// PC movement applied in updateGame via S_keys
+function applyPCMovement() {
+  const goLeft  = S_keys['KeyA'];
+  const goRight = S_keys['KeyD'];
+  const goUp    = S_keys['KeyW'] || S_keys['ArrowUp'];
+  const goDown  = S_keys['KeyS'] || S_keys['ArrowDown'];
+
+  // Ngang luôn áp dụng
+  if (goLeft)       { S.pvx = -4.5; S.facing = -1; }
+  else if (goRight) { S.pvx =  4.5; S.facing =  1; }
+  else if (!S.joyActive) { S.pvx = 0; }
+
+  // W/S: điều khiển chiều dọc khi đang bay Dragon
+  if (S.dragonFlying) {
+    if (goUp)        S.py = Math.max(60, S.py - 4.5);
+    else if (goDown) S.py = Math.min(canvas.height - 60, S.py + 4.5);
+  } else {
+    // W = nhảy (nếu đang trên sàn, không popup mở)
+    const anyPopup = ['popupForm','popupSkill','popupWeapon'].some(id => document.getElementById(id).style.display !== 'none');
+    if (goUp && !S._wJumpHeld && S.onGround && !anyPopup) {
+      if (useMana(20, 'Nhảy')) { S.pvy = -12; S.onGround = false; }
+      S._wJumpHeld = true;
+    }
+    if (!goUp) S._wJumpHeld = false;
+  }
+
+  // Joystick ảo phản chiếu WASD
+  const knob = document.getElementById('joyKnob');
+  if (knob) {
+    let kx = 0, ky = 0;
+    if (goLeft)  kx = -30;
+    if (goRight) kx =  30;
+    if (goUp)    ky = -30;
+    if (goDown)  ky =  30;
+    if (kx !== 0 || ky !== 0) {
+      knob.style.transform = 'translate(calc(-50% + ' + kx + 'px), calc(-50% + ' + ky + 'px))';
+      knob.style.background = 'linear-gradient(135deg, #00ffcc, #ff45b5)';
+    } else if (!S.joyActive) {
+      knob.style.transform = 'translate(-50%, -50%)';
+      knob.style.background = 'linear-gradient(135deg, #ffaa00, #9945ff)';
+    }
+  }
+}
+
+// Tab help toggle
+function toggleTabHelp() {
+  const el = document.getElementById('tabHelp');
+  const isOpen = el.style.display !== 'none';
+  el.style.display = isOpen ? 'none' : 'flex';
+  el.style.alignItems = 'flex-start';
+  el.style.justifyContent = 'center';
+  popupWsIndex = 0;
+}
+document.getElementById('tabHelp').addEventListener('click', e => {
+  if (e.target === document.getElementById('tabHelp')) toggleTabHelp();
+});
+
+// Chuột trái = M1
+canvas.addEventListener('mousedown', e => {
+  if (e.button === 0) performAttackM1();
+});
+
+// XÓA TRẠNG THÁI PLAYER & KẺ ĐỊCH KHI ĐỔI DẠNG HOẶC SỨC MẠNH
+function clearEnemyStatusOnSwitch() {
+  let msgs = [];
+
+  // 1. Xóa choáng boss/mob/extraMobs
+  if (S.boss.isStunned) {
+    S.boss.isStunned = false;
+    if (S.boss.stunTimeout) { clearTimeout(S.boss.stunTimeout); S.boss.stunTimeout = null; }
+    msgs.push("choáng Boss");
+  }
+  if (S.mob.isStunned) {
+    S.mob.isStunned = false;
+    if (S.mob.stunTimeout) { clearTimeout(S.mob.stunTimeout); S.mob.stunTimeout = null; }
+    msgs.push("choáng Quái");
+  }
+  // ✅ Fix: xóa choáng toàn bộ extraMobs
+  let extraStunCount = 0;
+  S.extraMobs.forEach(m => {
+    if (m.isStunned) {
+      m.isStunned = false;
+      if (m.stunTimeout) { clearTimeout(m.stunTimeout); m.stunTimeout = null; }
+      extraStunCount++;
+    }
+  });
+  if (extraStunCount > 0) msgs.push(`choáng ${extraStunCount} Quái Phụ`);
+
+  // 2. Xóa đóng băng boss/mob/extraMobs
+  if (S.boss.frozen) {
+    S.boss.frozen = false;
+    if (S.boss.frozenTimeout) { clearTimeout(S.boss.frozenTimeout); S.boss.frozenTimeout = null; }
+    msgs.push("đóng băng Boss");
+  }
+  if (S.mob.frozen) {
+    S.mob.frozen = false;
+    if (S.mob.frozenTimeout) { clearTimeout(S.mob.frozenTimeout); S.mob.frozenTimeout = null; }
+    msgs.push("đóng băng Quái");
+  }
+  // ✅ Fix: xóa đóng băng toàn bộ extraMobs (kể cả frozen vĩnh viễn không có timeout)
+  let extraFrozenCount = 0;
+  S.extraMobs.forEach(m => {
+    if (m.frozen) {
+      m.frozen = false;
+      if (m.frozenTimeout) { clearTimeout(m.frozenTimeout); m.frozenTimeout = null; }
+      extraFrozenCount++;
+    }
+  });
+  if (extraFrozenCount > 0) msgs.push(`đóng băng ${extraFrozenCount} Quái Phụ`);
+
+  // 3. Xóa phản damage (reflect) của player — Static Shield, Storm Field, Mirror, Time Loop, v.v.
+  if (S.reflectDamageActive) {
+    S.reflectDamageActive = false;
+    if (S.reflectTimeout) { clearTimeout(S.reflectTimeout); S.reflectTimeout = null; }
+    msgs.push("phản damage");
+  }
+
+  // ✅ Fix: xóa Time Stop toàn cục — thoát đóng băng tất cả kẻ địch bao gồm extraMobs
+  if (S.isTimeStopped) {
+    S.isTimeStopped = false;
+    if (S.timeStopTimeout) { clearTimeout(S.timeStopTimeout); S.timeStopTimeout = null; }
+    S.idleNearBossTimer = 0; S.idleNearMobTimer = 0;
+    msgs.push("Time Stop");
+  }
+
+  // ✅ Fix: xóa Temporal Slow
+  if (S.temporalSlow) {
+    S.temporalSlow = false;
+    if (S.temporalSlowTimeout) { clearTimeout(S.temporalSlowTimeout); S.temporalSlowTimeout = null; }
+    msgs.push("Temporal Slow");
+  }
+
+  // 4. Xóa Dimensional Wall (Space [X]) — vòng tròn năng lượng biến mất
+  if (S.dimensionalWall && S.dimensionalWall.active) {
+    S.dimensionalWall.active = false;
+    S.dimensionalWall.duration = 0;
+    msgs.push("Dimensional Wall");
+  }
+
+  // 5. Xóa Bất Tử (Recovery [N]) — chuyển form/sức mạnh làm mất bất tử
+  if (S.immortalActive) {
+    S.immortalActive = false;
+    if (S.immortalTimeout) { clearTimeout(S.immortalTimeout); S.immortalTimeout = null; }
+    msgs.push("Bất Tử (Recovery N)");
+  }
+
+  // 6. Xóa Bay rồng (Dragon Core [V]) khi thoát Dragon Core
+  if (S.dragonFlying) {
+    S.dragonFlying = false;
+    if (S.dragonFlightTimeout) { clearTimeout(S.dragonFlightTimeout); S.dragonFlightTimeout = null; }
+    document.getElementById('btnJump').innerHTML = '↑ NHẢ';
+    const groundY3 = S.platforms[0] ? S.platforms[0].y : canvas.height * 0.82;
+    if (S.py >= groundY3) { S.py = groundY3; S.pvy = 0; S.onGround = true; }
+    else { S.pvy = 0; }
+    msgs.push("Bay Rồng (Dragon V)");
+  }
+  // 7. Xóa Semi-Dragon khi thoát Dragon Core
+  if (S.isDragonCoreSemi && S.currentSkillMode !== 7) {
+    S.isDragonCoreSemi = false;
+    msgs.push("Semi-Dragon (Dragon B)");
+  }
+
+  // 8. Xóa Buff Damage (Grand God Sword [R])
+  if (S.buffDamageActive) {
+    S.buffDamageActive = false;
+    if (S.buffDamageTimeout) { clearTimeout(S.buffDamageTimeout); S.buffDamageTimeout = null; }
+    msgs.push("Buff Damage (R)");
+  }
+  // 9. Xóa Buff Defense (Grand God Sword [U])
+  if (S.buffDefenseActive) {
+    S.buffDefenseActive = false;
+    if (S.buffDefenseTimeout) { clearTimeout(S.buffDefenseTimeout); S.buffDefenseTimeout = null; }
+    msgs.push("Buff Defense (U)");
+  }
+
+  // 10. Xóa Infinite Mana khi đổi sức mạnh
+  if (S.infiniteMana) {
+    S.infiniteMana = false;
+    if (S.infiniteManaTimeout) { clearTimeout(S.infiniteManaTimeout); S.infiniteManaTimeout = null; }
+    msgs.push("Infinite Mana (Recovery B)");
+  }
+
+  if (msgs.length > 0) addLog("🔓 Hết hiệu lực khi đổi: " + msgs.join(", ") + "!");
+}
+
+// ENGINE LOOP (60FPS)
+let tickTimer = 0;
+function updateGame() {
+  tickTimer++;
+
+  // HỒI MANA TỰ NHIÊN: 1000 mana/giây
+  if (tickTimer % 60 === 0 && !S.infiniteMana) {
+    S.mana = Math.min(S.maxMana, S.mana + 1000);
+    updateManaUI();
+  }
+  
+  // CƠ CHẾ HỒI SINH TỰ ĐỘNG CHO BOSS VÀ QUÁI SAU KHI CHẾT (sau 5 giây)
+  if (S.boss.isDead) {
+    S.boss.deadTimer = (S.boss.deadTimer || 0) + 1;
+    if (S.boss.deadTimer >= 300) { // 300 tick = 5 giây
+      S.boss.isDead = false; S.boss.hp = S.boss.maxHp; S.boss.deadTimer = 0; S.boss.isStunned = false;
+      addLog("💀 CHAOS BOSS HỒI SINH! HP đầy trở lại!");
+      document.getElementById('bossHpText').textContent = `${S.boss.hp}/10000`;
+      document.getElementById('bossBar').style.width = '100%';
+    }
+  }
+  if (S.mob.isDead) {
+    S.mob.deadTimer = (S.mob.deadTimer || 0) + 1;
+    if (S.mob.deadTimer >= 300) { // 300 tick = 5 giây
+      S.mob.isDead = false; S.mob.hp = S.mob.maxHp; S.mob.deadTimer = 0; S.mob.isStunned = false;
+      addLog("💀 QUÁI THƯỜNG HỒI SINH! HP đầy trở lại!");
+      document.getElementById('mobHpText').textContent = `${S.mob.hp}/5000`;
+      document.getElementById('mobBar').style.width = '100%';
+    }
+  }
+  // 9 QUÁI MỚI: hồi sinh tự động sau 5 giây, giống hệt quái thường
+  S.extraMobs.forEach(m => {
+    if (m.isDead) {
+      m.deadTimer = (m.deadTimer || 0) + 1;
+      if (m.deadTimer >= 300) { // 300 tick = 5 giây
+        m.isDead = false; m.hp = m.maxHp; m.deadTimer = 0; m.isStunned = false;
+        addLog(`💀 QUÁI #${m.id} HỒI SINH! HP đầy trở lại!`);
+      }
+    }
+  });
+
+  // CƠ CHẾ CỨ 1 PHÚT (3600 TICK) BOSS VÀ QUÁI TỰ ĐỘNG HỒI 500 MÁU
+  if (tickTimer % 3600 === 0) {
+    if (!S.boss.isDead && S.boss.hp < S.boss.maxHp) { S.boss.hp = Math.min(S.boss.maxHp, S.boss.hp + 500); }
+    if (!S.mob.isDead && S.mob.hp < S.mob.maxHp) { S.mob.hp = Math.min(S.mob.maxHp, S.mob.hp + 500); }
+    S.extraMobs.forEach(m => { if (!m.isDead && m.hp < m.maxHp) { m.hp = Math.min(m.maxHp, m.hp + 500); } });
+    document.getElementById('bossHpText').textContent = `${S.boss.hp}/10000`;
+    document.getElementById('mobHpText').textContent = `${S.mob.hp}/5000`;
+    document.getElementById('bossBar').style.width = (S.boss.hp / S.boss.maxHp * 100) + '%';
+    document.getElementById('mobBar').style.width = (S.mob.hp / S.mob.maxHp * 100) + '%';
+    updateExtraMobsUI();
+    addLog("💚 Boss/Quái hồi +500 HP (mỗi phút)!");
+  }
+
+  // DI CHUYỂN PC
+  applyPCMovement();
+  // DI CHUYỂN JOYSTICK
+  if (S.joyActive && Math.abs(S.joyDX) > 5) { S.pvx = S.joyDX > 0 ? 4.5 : -4.5; S.facing = S.joyDX > 0 ? 1 : -1; } else { S.pvx = 0; }
+  
+  // Bay rồng: trọng lực bị loại bỏ, joystick/WASD điều khiển cả chiều Y
+  if (S.dragonFlying) {
+    S.pvy = 0;
+    // Joystick Y
+    if (S.joyActive && Math.abs(S.joyDY) > 5) {
+      S.py += S.joyDY > 0 ? 4 : -4;
+    }
+    // PC W/S đã xử lý trong applyPCMovement
+    S.py = Math.max(60, Math.min(canvas.height - 60, S.py));
+  } else {
+    S.pvy += 0.55;
+  }
+  S.px += S.pvx; S.py += S.pvy; S.onGround = false;
+
+  // XỬ LÝ VA CHẠM ĐỊA HÌNH SÀN MAP
+  S.platforms.forEach(p => {
+    if (S.px + 15 > p.x && S.px - 15 < p.x + p.w && S.py >= p.y && S.py - S.pvy <= p.y) { S.py = p.y; S.pvy = 0; S.onGround = true; }
+  });
+
+  if (S.px < 40) S.px = 40; if (S.px > S.platforms[0].w - 40) S.px = S.platforms[0].w - 40;
+
+  // CAMERA: theo dõi player, kẹp trong phạm vi bản đồ để không lộ vùng trống ngoài map
+  S.cameraX = Math.max(0, Math.min(S.platforms[0].w - canvas.width, S.px - canvas.width / 2));
+
+  // NỘI TẠI DIVINE SUPREMACY: Khi ở God Form, cưỡng chế quái dính trạng thái rút máu, cấm di chuyển
+  let secureKneel = (S.currentForm === 3 && S.allowKneelPassive);
+
+  // Quái thường tuần tra di chuyển tự động
+  let mobSpeed = (!S.mob.isDead && S.temporalSlow) ? 0.6 : 1.2;
+  if (!S.mob.isDead && !S.mob.frozen && !secureKneel && !S.mob.isStunned) {
+    S.mob.x += S.mob.facing * mobSpeed;
+    if (S.mob.x > 500 || S.mob.x < 100) S.mob.facing *= -1;
+  }
+  // Boss tuần tra di chuyển tự động
+  let bossSpeed = (!S.boss.isDead && S.temporalSlow) ? 0.4 : 0.8;
+  if (!S.boss.isDead && !S.boss.frozen && !secureKneel && !S.boss.isStunned) {
+    S.boss.x += S.boss.facing * bossSpeed;
+    if (S.boss.x > S.platforms[0].w - 50 || S.boss.x < 450) S.boss.facing *= -1;
+  }
+
+  // DIMENSIONAL WALL [Space X]: đếm ngược, gây 70 DMG nếu boss/mob chạm vào bán kính tường
+  if (S.dimensionalWall.active) {
+    if (S.dimensionalWall.duration !== Infinity) S.dimensionalWall.duration--;
+    if (S.dimensionalWall.duration <= 0) {
+      S.dimensionalWall.active = false;
+      addLog("🌀 Dimensional Wall tan biến!");
+    } else {
+      const wallR = 80;
+      const wallDmg = 70;
+      const wallStun = 10000;
+      // Boss
+      if (!S.boss.isDead && Math.abs(S.boss.x - S.px) < wallR) {
+        S.boss.hp = Math.max(0, S.boss.hp - wallDmg);
+        if (S.boss.hp <= 0) { S.boss.isDead = true; S.kills += 2; addLog("💀 BOSS HẠ GỤC (Wall)! +2 KILL!"); }
+        document.getElementById('bossHpText').textContent = S.boss.hp + '/10000';
+        document.getElementById('bossBar').style.width = (S.boss.hp / S.boss.maxHp * 100) + '%';
+        S.boss.isStunned = true;
+        if (S.boss.stunTimeout) clearTimeout(S.boss.stunTimeout);
+        S.boss.stunTimeout = setTimeout(() => { S.boss.isStunned = false; }, wallStun);
+      }
+      // Quái thường
+      if (!S.mob.isDead && Math.abs(S.mob.x - S.px) < wallR) {
+        S.mob.hp = Math.max(0, S.mob.hp - wallDmg);
+        if (S.mob.hp <= 0) { S.mob.isDead = true; S.kills += 1; addLog("💀 QUÁI HẠ GỤC (Wall)! +1 KILL!"); }
+        document.getElementById('mobHpText').textContent = S.mob.hp + '/5000';
+        document.getElementById('mobBar').style.width = (S.mob.hp / S.mob.maxHp * 100) + '%';
+        S.mob.isStunned = true;
+        if (S.mob.stunTimeout) clearTimeout(S.mob.stunTimeout);
+        S.mob.stunTimeout = setTimeout(() => { S.mob.isStunned = false; }, wallStun);
+      }
+      // 9 quái mới
+      S.extraMobs.forEach(m => {
+        if (!m.isDead && Math.abs(m.x - S.px) < wallR) {
+          m.hp = Math.max(0, m.hp - wallDmg);
+          if (m.hp <= 0) { m.hp = 0; m.isDead = true; S.kills += 1; addLog("💀 Quái #" + m.id + " HẠ GỤC (Wall)! +1 KILL!"); }
+          m.isStunned = true;
+          if (m.stunTimeout) clearTimeout(m.stunTimeout);
+          m.stunTimeout = setTimeout(() => { m.isStunned = false; m.stunTimeout = null; }, wallStun);
+        }
+      });
+      document.getElementById('killText').textContent = S.kills;
+    }
+  }
+
+  // Rút máu liên tục mỗi giây của nội tại God Form phát động + Gây Choáng tự động
+  if (secureKneel && tickTimer % 60 === 0) {
+    useMana(500, 'Nội Tại Ép Quỳ');
+    // Boss
+    if (!S.boss.isDead) {
+      S.boss.hp = Math.max(0, S.boss.hp - 800);
+      S.boss.isStunned = true;
+      if (S.boss.stunTimeout) clearTimeout(S.boss.stunTimeout);
+      S.boss.stunTimeout = setTimeout(() => { S.boss.isStunned = false; }, 1100);
+      if (S.boss.hp <= 0) { S.boss.hp = 0; S.boss.isDead = true; S.kills += 2; addLog("💀 BOSS HẠ GỤC (Ép Quỳ)! +2 KILL!"); }
+    }
+    // Quái thường
+    if (!S.mob.isDead) {
+      S.mob.hp = Math.max(0, S.mob.hp - 800);
+      S.mob.isStunned = true;
+      if (S.mob.stunTimeout) clearTimeout(S.mob.stunTimeout);
+      S.mob.stunTimeout = setTimeout(() => { S.mob.isStunned = false; }, 1100);
+      if (S.mob.hp <= 0) { S.mob.hp = 0; S.mob.isDead = true; S.kills += 1; addLog("💀 QUÁI HẠ GỤC (Ép Quỳ)! +1 KILL!"); }
+    }
+    // 9 quái mới: cũng bị ép quỳ -800 HP/giây + choáng
+    S.extraMobs.forEach(m => {
+      if (!m.isDead) {
+        m.hp = Math.max(0, m.hp - 800);
+        m.isStunned = true;
+        if (m.stunTimeout) clearTimeout(m.stunTimeout);
+        m.stunTimeout = setTimeout(() => { m.isStunned = false; }, 1100);
+        if (m.hp <= 0) { m.hp = 0; m.isDead = true; S.kills += 1; addLog(`💀 QUÁI #${m.id} HẠ GỤC (Ép Quỳ)! +1 KILL!`); }
+      }
+    });
+    addLog("⚡ [NỘI TẠI GOD FROM] Ép quỳ tất cả: -800 HP + Choáng liên tục!");
+    document.getElementById('killText').textContent = S.kills;
+    document.getElementById('bossHpText').textContent = `${S.boss.hp}/10000`;
+    document.getElementById('mobHpText').textContent = `${S.mob.hp}/5000`;
+    document.getElementById('bossBar').style.width = (S.boss.hp / S.boss.maxHp * 100) + '%';
+    document.getElementById('mobBar').style.width = (S.mob.hp / S.mob.maxHp * 100) + '%';
+    updateExtraMobsUI();
+  }
+
+  // QUÁI/BOSS ĐÁNH TRẢ PLAYER: chỉ cần player trong tầm ~50px và đang ở mặt đất gốc là bị đánh,
+  // bất kể đang di chuyển hay đứng yên - Quái: 15 HP | Boss: 50 HP. Nhịp đánh: mỗi 2 tick một lần.
+  // ĐIỀU KIỆN MẶT ĐẤT: chỉ bị đánh khi player đang đứng trên mặt đất gốc (cùng mặt bằng với boss/quái).
+  // Khi đang ở trên không (nhảy/lơ lửng) hoặc đứng trên các bậc platform cao hơn, boss/quái KHÔNG đánh được player.
+  let playerOnGroundLevel = S.onGround && Math.abs(S.py - S.platforms[0].y) < 1;
+
+  if (!S.mob.isDead && !secureKneel && !S.mob.isStunned && !S.mob.frozen && playerOnGroundLevel && Math.abs(S.mob.x - S.px) < 50) {
+    S.idleNearMobTimer++;
+    if (S.idleNearMobTimer >= 2) { // mỗi 2 tick đánh 1 lần
+      damagePlayer(15, "Quái Thường", S.mob);
+      S.idleNearMobTimer = 0;
+    }
+  } else { S.idleNearMobTimer = 0; }
+
+  if (!S.boss.isDead && !secureKneel && !S.boss.isStunned && !S.boss.frozen && playerOnGroundLevel && Math.abs(S.boss.x - S.px) < 50) {
+    S.idleNearBossTimer++;
+    if (S.idleNearBossTimer >= 2) { // mỗi 2 tick đánh 1 lần
+      damagePlayer(50, "Chaos Boss", S.boss);
+      S.idleNearBossTimer = 0;
+    }
+  } else { S.idleNearBossTimer = 0; }
+
+  // 9 QUÁI MỚI: tuần tra quanh vị trí gốc (±150px) + đánh trả player giống quái thường (15 HP, mỗi 2 tick)
+  S.extraMobs.forEach(m => {
+    if (!m.isDead && !m.frozen && !secureKneel && !m.isStunned) {
+      const speed = S.temporalSlow ? 0.6 : 1.2;
+      m.x += m.facing * speed;
+      if (m.x > m.homeX + 150 || m.x < m.homeX - 150) m.facing *= -1;
+    }
+    if (!m.isDead && !secureKneel && !m.isStunned && !m.frozen && playerOnGroundLevel && Math.abs(m.x - S.px) < 50) {
+      m.idleTimer = (m.idleTimer || 0) + 1;
+      if (m.idleTimer >= 2) { // mỗi 2 tick đánh 1 lần
+        damagePlayer(15, `Quái #${m.id}`, m);
+        m.idleTimer = 0;
+      }
+    } else { m.idleTimer = 0; }
+  });
+
+  if (S.slashEffect.active) { S.slashEffect.timer--; if (S.slashEffect.timer <= 0) S.slashEffect.active = false; }
+}
+
+// XỬ LÝ SÁT THƯƠNG QUÁI/BOSS GÂY LÊN PLAYER + CẬP NHẬT HUD HP + KIỂM TRA TỬ VONG
+// sourceEntity: tham chiếu S.boss hoặc S.mob (đối tượng đã gây sát thương) - dùng để phản damage lại đúng mục tiêu
+function damagePlayer(amount, fromTitle, sourceEntity) {
+  // Không thể bị tấn công khi cutscene M8 đang chạy
+  if (S.isCutscenePlaying) return;
+
+  // BẤT TỬ 30 giây (Recovery [N])
+  if (S.immortalActive) {
+    addLog(`⚡ [BẤT TỬ] ${fromTitle} gây ${amount} DMG nhưng God Hunter miễn nhiễm hoàn toàn!`);
+    return;
+  }
+
+  if (S.buffDefenseActive) amount = 0;
+
+  // [N] LIFE BARRIER: chặn 1 đòn chí mạng (damage >= 50)
+  if (S.lifeBarrierActive && amount >= 50) {
+    S.lifeBarrierActive = false;
+    addLog(`🛡️ [LIFE BARRIER] Chặn hoàn toàn ${amount} DMG chí mạng từ ${fromTitle}!`);
+    return;
+  }
+
+  // [E] PERFECT BLOCK + PARRY
+  if (S.isBlocking && amount > 0) {
+    if (S.blockPerfectWindow) {
+      // Bị đánh trong 2 giây đầu → PERFECT PARRY
+      activateParry(fromTitle);
+      return; // chặn hoàn toàn damage này
+    }
+    // Block bình thường (sau 2 giây đầu): chặn hoàn toàn
+    addLog(`🛡️ [E - BLOCK] Chặn ${amount} DMG từ ${fromTitle}!`);
+    return;
+  }
+
+  // PHẢN DAMAGE: Static Shield / Storm Field / Time Loop F đang active -> phản ngược lại kẻ địch gây sát thương
+  if (S.reflectDamageActive && amount > 0 && sourceEntity && !sourceEntity.isDead) {
+    sourceEntity.hp = Math.max(0, sourceEntity.hp - amount);
+    if (sourceEntity.hp <= 0) {
+      sourceEntity.hp = 0; sourceEntity.isDead = true;
+      const isBoss = (sourceEntity === S.boss);
+      S.kills += isBoss ? 2 : 1;
+      addLog(isBoss ? "💀 BOSS HẠ GỤC (Phản)! +2 KILL!" : "💀 QUÁI HẠ GỤC (Phản)! +1 KILL!");
+    }
+    document.getElementById('killText').textContent = S.kills;
+    document.getElementById('bossHpText').textContent = `${S.boss.hp}/10000`;
+    document.getElementById('mobHpText').textContent = `${S.mob.hp}/5000`;
+    document.getElementById('bossBar').style.width = (S.boss.hp / S.boss.maxHp * 100) + '%';
+    document.getElementById('mobBar').style.width = (S.mob.hp / S.mob.maxHp * 100) + '%';
+    updateExtraMobsUI();
+    addLog(`🔄 [PHẢN DAMAGE] ${amount} DMG từ ${fromTitle} đã bị phản ngược lại!`);
+    return;
+  }
+
+  S.hp = Math.max(0, S.hp - amount);
+  document.getElementById('hpText').textContent = formatBig(S.hp);
+  document.getElementById('hpBar').style.width = (S.hp / S.maxHp * 100) + '%';
+  addLog(`🩸 [${fromTitle}] -${amount} HP | God Hunter còn: ${formatBig(S.hp)} HP`);
+  if (S.hp <= 0) {
+    addLog("☠️ GOD HUNTER ĐÃ GỤC NGÃ! Hồi sinh sau 3 giây...");
+    setTimeout(() => {
+      S.hp = S.maxHp;
+      document.getElementById('hpText').textContent = formatBig(S.hp);
+      document.getElementById('hpBar').style.width = '100%';
+      addLog("✨ GOD HUNTER HỒI SINH! HP đầy trở lại!");
+    }, 3000);
+  }
+}
+
+function drawGame() {
+  // KHÔNG GIAN BẢN ĐỒ MAP TRỰC QUAN NỀN TỐI VŨ TRỤ
+  ctx.fillStyle = '#060317'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // CAMERA: dịch toàn bộ thế giới theo vị trí player để hiển thị đúng phần map player đang ở
+  ctx.save();
+  ctx.translate(-S.cameraX, 0);
+  
+  // Vẽ các dải tầng đá của map
+  S.platforms.forEach(p => {
+    ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.w, p.h);
+    ctx.fillStyle = '#ffaa00'; ctx.fillRect(p.x, p.y, p.w, 4); // Cỏ/Viền năng lượng bề mặt
+  });
+
+  let secureKneel = (S.currentForm === 3 && S.allowKneelPassive);
+
+  // VẼ BOSS KHỔNG LỒ
+  if (!S.boss.isDead) {
+    let bStun = S.boss.isStunned;
+    let bFrozen = S.boss.frozen;
+    let bColor = secureKneel ? '#772233' : bFrozen ? '#8833ff' : bStun ? (tickTimer%20<10 ? '#ffee00' : '#ff8800') : '#ff1133';
+    ctx.fillStyle = bColor;
+    let h = secureKneel ? S.boss.size * 0.5 : S.boss.size;
+    ctx.fillRect(S.boss.x - S.boss.size/2, S.boss.y - h, S.boss.size, h);
+    // Viền choáng/đóng băng
+    if (bStun || bFrozen) {
+      ctx.strokeStyle = bFrozen ? '#cc66ff' : '#ffee00';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(S.boss.x - S.boss.size/2, S.boss.y - h, S.boss.size, h);
+    }
+    ctx.fillStyle = '#fff'; ctx.font = '10px sans-serif';
+    let bLabel = secureKneel ? "🛐 BOSS KNEEL" : bFrozen ? "❄️ BOSS ĐÓNG BĂNG" : bStun ? "💫 BOSS CHOÁNG" : "👹 BOSS";
+    ctx.fillText(bLabel, S.boss.x - 28, S.boss.y - h - 8);
+  }
+
+  // VẼ QUÁI THƯỜNG
+  if (!S.mob.isDead) {
+    let mStun = S.mob.isStunned;
+    let mFrozen = S.mob.frozen;
+    let mColor = secureKneel ? '#995500' : mFrozen ? '#6622cc' : mStun ? (tickTimer%20<10 ? '#ffee00' : '#ff8800') : '#ff7700';
+    ctx.fillStyle = mColor;
+    let h = secureKneel ? S.mob.size * 0.5 : S.mob.size;
+    ctx.fillRect(S.mob.x - S.mob.size/2, S.mob.y - h, S.mob.size, h);
+    if (mStun || mFrozen) {
+      ctx.strokeStyle = mFrozen ? '#cc66ff' : '#ffee00';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(S.mob.x - S.mob.size/2, S.mob.y - h, S.mob.size, h);
+    }
+    ctx.fillStyle = '#fff'; ctx.font = '9px sans-serif';
+    let mLabel = secureKneel ? "🛐 MOB KNEEL" : mFrozen ? "❄️ MOB ĐÓNG BĂNG" : mStun ? "💫 MOB CHOÁNG" : "👾 MOB";
+    ctx.fillText(mLabel, S.mob.x - 22, S.mob.y - h - 6);
+  }
+
+  // VẼ 9 QUÁI MỚI (mỗi con có thanh máu mini riêng phía trên đầu)
+  S.extraMobs.forEach(m => {
+    if (m.isDead) return;
+    let eStun = m.isStunned;
+    let eFrozen = m.frozen;
+    let eColor = eFrozen ? '#6622cc' : eStun ? (tickTimer%20<10 ? '#ffee00' : '#ff8800') : '#cc5500';
+    ctx.fillStyle = eColor;
+    let h = m.size;
+    ctx.fillRect(m.x - m.size/2, m.y - h, m.size, h);
+    if (eStun || eFrozen) {
+      ctx.strokeStyle = eFrozen ? '#cc66ff' : '#ffee00';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(m.x - m.size/2, m.y - h, m.size, h);
+    }
+    // Thanh máu mini phía trên đầu
+    const barW = 40;
+    ctx.fillStyle = '#330000'; ctx.fillRect(m.x - barW/2, m.y - h - 16, barW, 4);
+    ctx.fillStyle = '#ffdd00'; ctx.fillRect(m.x - barW/2, m.y - h - 16, barW * (m.hp / m.maxHp), 4);
+    ctx.fillStyle = '#fff'; ctx.font = '8px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(`👾 #${m.id}`, m.x, m.y - h - 20);
+    ctx.textAlign = 'left';
+  });
+
+  // VẼ PLAYER (GOD HUNTER)
+  ctx.save(); ctx.translate(S.px, S.py);
+  // Hào quang BAY RỒNG: cánh rồng + ánh lửa đỏ cam
+  if (S.dragonFlying) {
+    const fp = 0.5 + 0.5 * Math.sin(tickTimer * 0.12);
+    ctx.save(); ctx.translate(0, -S.size/2);
+    // Cánh trái
+    ctx.fillStyle = `rgba(255,${80+Math.floor(80*fp)},0,${0.55+0.2*fp})`;
+    ctx.beginPath(); ctx.moveTo(-10,0); ctx.quadraticCurveTo(-80,-40,-60,-80); ctx.quadraticCurveTo(-30,-30,-10,0); ctx.fill();
+    // Cánh phải
+    ctx.beginPath(); ctx.moveTo(10,0); ctx.quadraticCurveTo(80,-40,60,-80); ctx.quadraticCurveTo(30,-30,10,0); ctx.fill();
+    ctx.shadowColor='#ff4400'; ctx.shadowBlur=20;
+    ctx.strokeStyle=`rgba(255,200,0,${0.7+0.3*fp})`; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(-10,0); ctx.quadraticCurveTo(-80,-40,-60,-80); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(10,0); ctx.quadraticCurveTo(80,-40,60,-80); ctx.stroke();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#ffaa00'; ctx.font='bold 9px monospace'; ctx.textAlign='center';
+    ctx.fillText('🐉 BAY', 0, -S.size - 22);
+    ctx.restore();
+  }
+  // Hào quang SEMI-DRAGON (biến hình): vảy rồng đỏ đen bao phủ
+  if (S.isDragonCoreSemi && S.currentSkillMode === 7) {
+    const sp = 0.5 + 0.5 * Math.sin(tickTimer * 0.2);
+    ctx.save(); ctx.translate(0, -S.size/2);
+    ctx.shadowColor='#cc0000'; ctx.shadowBlur=25;
+    ctx.strokeStyle=`rgba(200,0,0,${0.7+0.3*sp})`; ctx.lineWidth=5;
+    ctx.beginPath(); ctx.arc(0, 0, S.size + 12, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle=`rgba(150,0,0,${0.15+0.1*sp})`;
+    ctx.beginPath(); ctx.arc(0, 0, S.size + 12, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.fillStyle='#ff3300'; ctx.font='bold 8px monospace'; ctx.textAlign='center';
+    ctx.fillText('🐲 SEMI', 0, -S.size - 16);
+    ctx.restore();
+  }
+  // Hào quang BẤT TỬ: nhấp nháy vàng trắng rực rỡ
+  if (S.immortalActive) {
+    const pulse = 0.5 + 0.5 * Math.sin(tickTimer * 0.15);
+    ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 30;
+    ctx.strokeStyle = `rgba(255,${180 + Math.floor(75*pulse)},0,${0.7+0.3*pulse})`;
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.arc(0, -S.size/2, S.size + 8, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = `rgba(255,255,150,${0.12 + 0.1*pulse})`;
+    ctx.beginPath(); ctx.arc(0, -S.size/2, S.size + 8, 0, Math.PI*2); ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffff00'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('✨ BẤT TỬ', 0, -S.size - 18);
+  }
+  // Chữ trạng thái nhỏ khi đang Phản Damage active
+  if (S.reflectDamageActive) {
+    ctx.fillStyle = '#ffaa00'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('🔄 REFLECT', 0, -S.size - 18);
+  }
+  // Hào quang BLOCK đang hoạt động
+  if (S.isBlocking) {
+    ctx.strokeStyle = '#3399ff'; ctx.lineWidth = 3;
+    ctx.shadowColor = '#3399ff'; ctx.shadowBlur = 12;
+    ctx.beginPath(); ctx.arc(0, -S.size/2, S.size + 4, 0, Math.PI*2); ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
+  if (S.currentForm === 3) {
+    ctx.shadowColor = '#ffcc00'; ctx.shadowBlur = 20;
+    ctx.fillStyle = 'rgba(255,204,0,0.25)'; ctx.beginPath(); ctx.arc(0, -S.size/2, S.size, 0, Math.PI*2); ctx.fill();
+  } else if (S.currentForm === 2) {
+    ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 15;
+    ctx.fillStyle = 'rgba(0,229,255,0.2)'; ctx.beginPath(); ctx.arc(0, -S.size/2, S.size*0.9, 0, Math.PI*2); ctx.fill();
+  }
+  
+  ctx.fillStyle = '#0f0a26'; ctx.fillRect(-12, -S.size, 24, S.size);
+  ctx.fillStyle = '#ffdbac'; ctx.beginPath(); ctx.arc(0, -S.size, 8, 0, Math.PI*2); ctx.fill();
+  
+  // Thanh kiếm phát sáng trên tay
+  ctx.lineWidth = 3;
+  ctx.strokeStyle = S.currentWeapon === 4 ? '#ffcc00' : (S.currentWeapon === 3 ? '#00e5ff' : '#ff0055');
+  ctx.beginPath(); ctx.moveTo(6 * S.facing, -15); ctx.lineTo(25 * S.facing, -32); ctx.stroke();
+  ctx.restore(); ctx.shadowBlur = 0;
+
+  // HIỆU ỨNG VỆT CHÉM M1
+  if (S.slashEffect.active) {
+    ctx.fillStyle = S.slashEffect.type === 'god' ? 'rgba(255,204,0,0.4)' : 'rgba(255,50,0,0.3)';
+    ctx.beginPath(); ctx.arc(S.slashEffect.x, S.slashEffect.y, S.slashEffect.w/2, 0, Math.PI*2); ctx.fill();
+  }
+
+  // VẼ DIMENSIONAL WALL: vòng tròn năng lượng xanh bao quanh player, đi theo player
+  if (S.dimensionalWall.active) {
+    const wallR = 80;
+    const wallAlpha = 0.25 + 0.15 * Math.sin(tickTimer * 0.08);
+    ctx.save();
+    ctx.strokeStyle = `rgba(0,200,255,${0.7 + 0.3 * Math.sin(tickTimer * 0.1)})`;
+    ctx.lineWidth = 4;
+    ctx.shadowColor = '#00eeff'; ctx.shadowBlur = 18;
+    ctx.beginPath(); ctx.arc(S.px, S.py - S.size/2, wallR, 0, Math.PI*2); ctx.stroke();
+    ctx.fillStyle = `rgba(0,180,255,${wallAlpha})`;
+    ctx.beginPath(); ctx.arc(S.px, S.py - S.size/2, wallR, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = '#00ffff'; ctx.font = '9px monospace'; ctx.textAlign = 'center';
+    const secLeft = S.dimensionalWall.duration === Infinity ? '∞' : Math.ceil(S.dimensionalWall.duration / 60);
+    ctx.fillText('🌀 WALL ' + secLeft + (secLeft !== '∞' ? 's' : ''), S.px, S.py - S.size/2 - wallR - 6);
+    ctx.restore();
+  }
+
+  // Đóng camera transform - phần dưới đây vẽ ở toạ độ màn hình cố định (HUD/overlay)
+  ctx.restore();
+
+  // HIỂN THỊ TRẠNG THÁI TEMPORAL SLOW
+  if (S.temporalSlow) {
+    ctx.fillStyle = 'rgba(180,100,255,0.18)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#cc88ff'; ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+    ctx.fillText('⏳ TEMPORAL SLOW ĐANG HOẠT ĐỘNG', canvas.width/2, 24);
+  }
+}
+
+function gameEngine() { updateGame(); drawGame(); requestAnimationFrame(gameEngine); }
+resize(); updateUI(); gameEngine();
+</script>
+</body>
+</html>
