@@ -1,0 +1,20 @@
+{
+  "name": "god-hunter-online-server",
+  "version": "1.0.0",
+  "description": "Server multiplayer GOD HUNTER ONLINE",
+  "main": "unified-server.js",
+  "scripts": {
+    "start": "node unified-server.js",
+    "start:local-all-ports": "node start-all.js",
+    "start:world": "node main-server.js",
+    "start:world-private": "node main-server.js",
+    "start:dungeon": "node main-server.js",
+    "start:dungeon-private": "node main-server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "ws": "^8.17.0"
+  }
+}
